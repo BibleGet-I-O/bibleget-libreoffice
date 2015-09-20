@@ -610,7 +610,7 @@ public class BibleGetJSON {
                             case "speaker":
 //                                System.out.println("We have found a speaker tag");
                                 xPropertySet.setPropertyValue("CharWeight", com.sun.star.awt.FontWeight.BOLD);
-                                xPropertySet.setPropertyValue("CharBackTransparent", false);
+                                //xPropertySet.setPropertyValue("CharBackTransparent", false);
                                 xPropertySet.setPropertyValue("CharBackColor", Color.LIGHT_GRAY.getRGB() & ~0xFF000000);
                                 m_xText.insertString(xTextRange, matcher1.group(4), false);
                                 if(boldVerseText==false){
@@ -670,11 +670,9 @@ public class BibleGetJSON {
         m_xText.insertString(xTextRange, speakerTagBefore, false);
         
         xPropertySet.setPropertyValue("CharWeight", FontWeight.BOLD);
-        xPropertySet.setPropertyValue("CharBackTransparent", false);
-        System.out.println("Color.LIGHT_GRAY.getAlpha() = "+Color.LIGHT_GRAY.getAlpha());
-        System.out.println("Color.LIGHT_GRAY.getRGB() as hex = "+Integer.toHexString(Color.LIGHT_GRAY.getRGB()));
-        System.out.println("Color.LIGHT_GRAY.getAlpha() as hex = "+Integer.toHexString(Color.LIGHT_GRAY.getAlpha()));
+        //xPropertySet.setPropertyValue("CharBackTransparent", false);
         
+        //xPropertySet.setPropertyValue("CharBackColor", Color.LIGHT_GRAY.getRGB());
         xPropertySet.setPropertyValue("CharBackColor", Color.LIGHT_GRAY.getRGB() & ~0xFF000000);
         //xPropertySet.setPropertyValue("CharColor", Color.YELLOW.getRGB());
         
@@ -683,6 +681,7 @@ public class BibleGetJSON {
         if(boldVerseText==false){
             xPropertySet.setPropertyValue("CharWeight", FontWeight.NORMAL);                                
         }
+        //xPropertySet.setPropertyValue("CharBackColor", bgColorVerseText.getRGB());
         xPropertySet.setPropertyValue("CharBackColor", bgColorVerseText.getRGB() & ~0xFF000000);
         //xPropertySet.setPropertyValue("CharColor", textColorVerseText.getRGB());
         m_xText.insertString(xTextRange, speakerTagAfter, false);   
