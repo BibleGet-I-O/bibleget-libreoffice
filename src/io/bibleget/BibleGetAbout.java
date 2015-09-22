@@ -73,9 +73,9 @@ public class BibleGetAbout extends javax.swing.JFrame {
                 
         HTMLStr = "" 
                 + "<html><body><h2>"
-                + __("BibleGet I/O plugin for Open Office Writer")
+                + __("BibleGet I/O plugin for LibreOffice Writer")
                 + "</h2><h4>"
-                + __("Version") + " 2.0"
+                + __("Version") + " " + String.valueOf(BibleGetIO.VERSION)
                 + "</h4><p style='text-align:justify;width:90%;'>"
                 + __("This plugin was developed by <b>John R. D'Orazio</b>, a priest in the diocese of Rome, chaplain at Roma Tre University.")
                 + " "
