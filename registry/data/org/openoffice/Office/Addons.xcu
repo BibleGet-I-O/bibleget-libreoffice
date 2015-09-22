@@ -373,7 +373,7 @@
             <value>%origin%/../../../../../images/quotefromselection-small.bmp</value>
           </prop>
           <prop oor:name="ImageBigURL">
-            <value>%origin%/../../../../../images/quotefromselection-large.bmp</value>
+            <value>%origin%/../../../../../images/quotefromselection-small.bmp</value>
           </prop>
         </node>
       </node>
@@ -386,7 +386,7 @@
             <value>%origin%/../../../../../images/preferences-small.bmp</value>
           </prop>
           <prop oor:name="ImageBigURL">
-            <value>%origin%/../../../../../images/preferences-large.bmp</value>
+            <value>%origin%/../../../../../images/preferences-small.bmp</value>
           </prop>
         </node>
       </node>
@@ -399,7 +399,7 @@
             <value>%origin%/../../../../../images/info-small.bmp</value>
           </prop>
           <prop oor:name="ImageBigURL">
-            <value>%origin%/../../../../../images/info-large.bmp</value>
+            <value>%origin%/../../../../../images/info-small.bmp</value>
           </prop>
         </node>
       </node>
@@ -412,7 +412,7 @@
             <value>%origin%/../../../../../images/quotefrominput-small.bmp</value>
           </prop>
           <prop oor:name="ImageBigURL">
-            <value>%origin%/../../../../../images/quotefrominput-large.bmp</value>
+            <value>%origin%/../../../../../images/quotefrominput-small.bmp</value>
           </prop>
         </node>
       </node>
@@ -438,7 +438,7 @@
             <value>%origin%/../../../../../images/help-small.bmp</value>
           </prop>
           <prop oor:name="ImageBigURL">
-            <value>%origin%/../../../../../images/help-large.bmp</value>
+            <value>%origin%/../../../../../images/help-small.bmp</value>
           </prop>
         </node>
       </node>
