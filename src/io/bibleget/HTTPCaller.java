@@ -61,7 +61,7 @@ public class HTTPCaller {
     
     private static Indexes indexes = null;
     private final List<String> errorMessages = new ArrayList<>();
-    private static int count = 0;
+    private static int counter = 0;
         
     /**
      *
@@ -77,9 +77,9 @@ public class HTTPCaller {
             Logger.getLogger(HTTPCaller.class.getName()).log(Level.SEVERE, null, ex);
         }
         String url = "https://query.bibleget.io/index.php?query="+myQuery+"&version="+versions+"&return=json&appid=libreoffice&pluginversion="+BibleGetIO.PLUGINVERSION;
-        if(count < 1){
+        if(counter < 1){
             if(installCert()){
-                count++;
+                counter++;
                 return getResponse(url);
             }
         }else{
@@ -97,9 +97,9 @@ public class HTTPCaller {
         String url;
         String response;
         url = "https://query.bibleget.io/metadata.php?query="+query;
-        if(count < 1){
+        if(counter < 1){
             if(installCert()){
-                count++;
+                counter++;
                 return getResponse(url);
             }
         }else{
