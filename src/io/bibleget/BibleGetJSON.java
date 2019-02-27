@@ -20,6 +20,7 @@ import com.sun.star.text.XTextViewCursorSupplier;
 import com.sun.star.uno.UnoRuntime;
 import java.awt.Color;
 import java.io.StringReader;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -83,7 +84,7 @@ public class BibleGetJSON {
      * @param xController
      * @throws java.lang.ClassNotFoundException
      */
-    public BibleGetJSON(XController xController) throws ClassNotFoundException{
+    public BibleGetJSON(XController xController) throws ClassNotFoundException, SQLException{
         m_xController = xController;
         if (xController != null) {
             m_xModel = (XModel) xController.getModel();

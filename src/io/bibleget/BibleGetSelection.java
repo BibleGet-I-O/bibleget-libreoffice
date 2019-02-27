@@ -17,6 +17,7 @@ import com.sun.star.text.XTextRange;
 import com.sun.star.uno.UnoRuntime;
 import static io.bibleget.BibleGetI18N.__;
 import java.awt.HeadlessException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +37,7 @@ public class BibleGetSelection {
     private final XTextDocument m_xTextDocument;
     private static BibleGetDB biblegetDB;
     
-    private BibleGetSelection(XController xController) throws ClassNotFoundException
+    private BibleGetSelection(XController xController) throws ClassNotFoundException, SQLException
     {
         m_xController = xController;
         m_xModel = (XModel) m_xController.getModel();
@@ -49,7 +50,7 @@ public class BibleGetSelection {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public static BibleGetSelection getInstance(XController xController) throws ClassNotFoundException
+    public static BibleGetSelection getInstance(XController xController) throws ClassNotFoundException, SQLException
     {
         if(instance == null)
         {

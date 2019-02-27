@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -111,18 +112,26 @@ public class OptionsFrame extends javax.swing.JFrame {
      * Creates new form OptionsFrame
      * @param pkgPath
      */
-    private OptionsFrame() throws ClassNotFoundException, UnsupportedEncodingException {
+    private OptionsFrame() throws ClassNotFoundException, UnsupportedEncodingException, SQLException {
                 
         //jTextPane does not initialize correctly, it causes a Null Exception Pointer
         //Following line keeps this from crashing the program
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         
         // Get preferences from database       
+        System.out.println("getting instance of BibleGetDB");
         biblegetDB = BibleGetDB.getInstance();
+        System.out.println("getting JsonObject of biblegetDB options");
         JsonObject myOptions = biblegetDB.getOptions();
+        System.out.println(myOptions.toString());
+        System.out.println("getting JsonValue of options rows");
         JsonValue myResults = myOptions.get("rows");
+        System.out.println(myResults.toString());
+        System.out.println("navigating values in json tree and setting global variables");
         navigateTree(myResults, null);
         this.fontFamilies = BibleGetIO.getFontFamilies();
+        
+        System.out.println("(OptionsFrame: 127) textColorBookChapter ="+textColorBookChapter);
         
         this.kit = new HTMLEditorKit();
         this.doc = kit.createDefaultDocument();
@@ -173,7 +182,7 @@ public class OptionsFrame extends javax.swing.JFrame {
         
     }
 
-    public static OptionsFrame getInstance() throws ClassNotFoundException, UnsupportedEncodingException
+    public static OptionsFrame getInstance() throws ClassNotFoundException, UnsupportedEncodingException, SQLException
     {
         if(instance == null)
         {
@@ -957,27 +966,20 @@ public class OptionsFrame extends javax.swing.JFrame {
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
         final JColorChooser jColorChooser = new JColorChooser(textColorBookChapter);
         jColorChooserClean(jColorChooser);
-        ActionListener okActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                textColorBookChapter = jColorChooser.getColor();
-                String rgb = ColorToHexString(textColorBookChapter);
-                styles.addRule("div.results p.book { color:"+rgb+"; }");
-                jTextPane1.setDocument(doc);
-                jTextPane1.setText(HTMLStr);
-                if(biblegetDB.setStringOption("TEXTCOLORBOOKCHAPTER", rgb)){
-                    //System.out.println("TEXTCOLORBOOKCHAPTER was successfully updated in database to value "+rgb);
-                }
-                else{
-                    //System.out.println("Error updating TEXTCOLORBOOKCHAPTER in database");
-                }
+        ActionListener okActionListener = (ActionEvent actionEvent) -> {
+            textColorBookChapter = jColorChooser.getColor();
+            String rgb = ColorToHexString(textColorBookChapter);
+            styles.addRule("div.results p.book { color:"+rgb+"; }");
+            jTextPane1.setDocument(doc);
+            jTextPane1.setText(HTMLStr);
+            if(biblegetDB.setStringOption("TEXTCOLORBOOKCHAPTER", rgb)){
+                //System.out.println("TEXTCOLORBOOKCHAPTER was successfully updated in database to value "+rgb);
+            }
+            else{
+                //System.out.println("Error updating TEXTCOLORBOOKCHAPTER in database");
             }
         };
-        ActionListener cancelActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                
-            }        
+        ActionListener cancelActionListener = (ActionEvent actionEvent) -> {        
         };
         final JDialog jDialog = JColorChooser.createDialog(null,  __("Choose Book / Chapter Font Color"), true, jColorChooser, okActionListener, cancelActionListener);
         jDialog.setIconImages(setIconImagesTextColor());
@@ -987,28 +989,21 @@ public class OptionsFrame extends javax.swing.JFrame {
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
         final JColorChooser jColorChooser = new JColorChooser(bgColorBookChapter);
         jColorChooserClean(jColorChooser);
-        ActionListener okActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                bgColorBookChapter = jColorChooser.getColor();
-                String rgb = ColorToHexString(bgColorBookChapter);
-                styles.addRule("div.results p.book { background-color:"+rgb+"; }");
-                jTextPane1.setDocument(doc);
-                jTextPane1.setText(HTMLStr);
-                if(biblegetDB.setStringOption("BGCOLORBOOKCHAPTER", rgb)){
-                    //System.out.println("BGCOLORBOOKCHAPTER was successfully updated in database to value "+rgb);
-                }
-                else{
-                    //System.out.println("Error updating BGCOLORBOOKCHAPTER in database");
-                }
+        ActionListener okActionListener = (ActionEvent actionEvent) -> {
+            bgColorBookChapter = jColorChooser.getColor();
+            String rgb = ColorToHexString(bgColorBookChapter);
+            styles.addRule("div.results p.book { background-color:"+rgb+"; }");
+            jTextPane1.setDocument(doc);
+            jTextPane1.setText(HTMLStr);
+            if(biblegetDB.setStringOption("BGCOLORBOOKCHAPTER", rgb)){
+                //System.out.println("BGCOLORBOOKCHAPTER was successfully updated in database to value "+rgb);
+            }
+            else{
+                //System.out.println("Error updating BGCOLORBOOKCHAPTER in database");
             }
         };
         ActionListener cancelActionListener;
-        cancelActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                
-            }        
+        cancelActionListener = (ActionEvent actionEvent) -> {        
         };
         final JDialog jDialog = JColorChooser.createDialog(null,  __("Choose Book / Chapter Background Color"), true, jColorChooser, okActionListener, cancelActionListener);
         jDialog.setIconImages(setIconImagesBGColor());
@@ -1018,28 +1013,21 @@ public class OptionsFrame extends javax.swing.JFrame {
     private void jButton5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MouseClicked
         final JColorChooser jColorChooser = new JColorChooser(textColorVerseNumber);
         jColorChooserClean(jColorChooser);
-        ActionListener okActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                textColorVerseNumber = jColorChooser.getColor();
-                String rgb = ColorToHexString(textColorVerseNumber);
-                styles.addRule("div.results p.verses span.sup { color:"+rgb+"; }");
-                jTextPane1.setDocument(doc);
-                jTextPane1.setText(HTMLStr);
-                if(biblegetDB.setStringOption("TEXTCOLORVERSENUMBER", rgb)){
-                    //System.out.println("TEXTCOLORVERSENUMBER was successfully updated in database to value "+rgb);
-                }
-                else{
-                    //System.out.println("Error updating TEXTCOLORVERSENUMBER in database");
-                }
+        ActionListener okActionListener = (ActionEvent actionEvent) -> {
+            textColorVerseNumber = jColorChooser.getColor();
+            String rgb = ColorToHexString(textColorVerseNumber);
+            styles.addRule("div.results p.verses span.sup { color:"+rgb+"; }");
+            jTextPane1.setDocument(doc);
+            jTextPane1.setText(HTMLStr);
+            if(biblegetDB.setStringOption("TEXTCOLORVERSENUMBER", rgb)){
+                //System.out.println("TEXTCOLORVERSENUMBER was successfully updated in database to value "+rgb);
+            }
+            else{
+                //System.out.println("Error updating TEXTCOLORVERSENUMBER in database");
             }
         };
         ActionListener cancelActionListener;
-        cancelActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                
-            }
+        cancelActionListener = (ActionEvent actionEvent) -> {
         };
         final JDialog jDialog = JColorChooser.createDialog(null,  __("Choose Verse Number Font Color"), true, jColorChooser, okActionListener, cancelActionListener);
         jDialog.setIconImages(setIconImagesTextColor());
@@ -1049,28 +1037,21 @@ public class OptionsFrame extends javax.swing.JFrame {
     private void jButton6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton6MouseClicked
         final JColorChooser jColorChooser = new JColorChooser(bgColorVerseNumber);
         jColorChooserClean(jColorChooser);
-        ActionListener okActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                bgColorVerseNumber = jColorChooser.getColor();
-                String rgb = ColorToHexString(bgColorVerseNumber);
-                styles.addRule("div.results p.verses span.sup { background-color:"+rgb+"; }");
-                jTextPane1.setDocument(doc);
-                jTextPane1.setText(HTMLStr);
-                if(biblegetDB.setStringOption("BGCOLORVERSENUMBER", rgb)){
-                    //System.out.println("BGCOLORVERSENUMBER was successfully updated in database to value "+rgb);
-                }
-                else{
-                    //System.out.println("Error updating BGCOLORVERSENUMBER in database");
-                }
+        ActionListener okActionListener = (ActionEvent actionEvent) -> {
+            bgColorVerseNumber = jColorChooser.getColor();
+            String rgb = ColorToHexString(bgColorVerseNumber);
+            styles.addRule("div.results p.verses span.sup { background-color:"+rgb+"; }");
+            jTextPane1.setDocument(doc);
+            jTextPane1.setText(HTMLStr);
+            if(biblegetDB.setStringOption("BGCOLORVERSENUMBER", rgb)){
+                //System.out.println("BGCOLORVERSENUMBER was successfully updated in database to value "+rgb);
+            }
+            else{
+                //System.out.println("Error updating BGCOLORVERSENUMBER in database");
             }
         };
         ActionListener cancelActionListener;
-        cancelActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                
-            }        
+        cancelActionListener = (ActionEvent actionEvent) -> {        
         };
         final JDialog jDialog = JColorChooser.createDialog(null,  __("Choose Verse Number Background Color"), true, jColorChooser, okActionListener, cancelActionListener);
         jDialog.setIconImages(setIconImagesBGColor());
@@ -1080,28 +1061,21 @@ public class OptionsFrame extends javax.swing.JFrame {
     private void jButton7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton7MouseClicked
         final JColorChooser jColorChooser = new JColorChooser(textColorVerseText);
         jColorChooserClean(jColorChooser);
-        ActionListener okActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                textColorVerseText = jColorChooser.getColor();
-                String rgb = ColorToHexString(textColorVerseText);
-                styles.addRule("div.results p.verses span.text { color:"+rgb+"; }");
-                jTextPane1.setDocument(doc);
-                jTextPane1.setText(HTMLStr);
-                if(biblegetDB.setStringOption("TEXTCOLORVERSETEXT", rgb)){
-                    //System.out.println("TEXTCOLORVERSETEXT was successfully updated in database to value "+rgb);
-                }
-                else{
-                    //System.out.println("Error updating TEXTCOLORVERSETEXT in database");
-                }
+        ActionListener okActionListener = (ActionEvent actionEvent) -> {
+            textColorVerseText = jColorChooser.getColor();
+            String rgb = ColorToHexString(textColorVerseText);
+            styles.addRule("div.results p.verses span.text { color:"+rgb+"; }");
+            jTextPane1.setDocument(doc);
+            jTextPane1.setText(HTMLStr);
+            if(biblegetDB.setStringOption("TEXTCOLORVERSETEXT", rgb)){
+                //System.out.println("TEXTCOLORVERSETEXT was successfully updated in database to value "+rgb);
+            }
+            else{
+                //System.out.println("Error updating TEXTCOLORVERSETEXT in database");
             }
         };
         ActionListener cancelActionListener;
-        cancelActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                
-            }
+        cancelActionListener = (ActionEvent actionEvent) -> {
         };
         final JDialog jDialog = JColorChooser.createDialog(null,  __("Choose Verse Text Font Color"), true, jColorChooser, okActionListener, cancelActionListener);
         jDialog.setIconImages(setIconImagesTextColor());
@@ -1111,28 +1085,21 @@ public class OptionsFrame extends javax.swing.JFrame {
     private void jButton8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton8MouseClicked
         final JColorChooser jColorChooser = new JColorChooser(bgColorVerseText);
         jColorChooserClean(jColorChooser);
-        ActionListener okActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                bgColorVerseText = jColorChooser.getColor();
-                String rgb = ColorToHexString(bgColorVerseText);
-                styles.addRule("div.results p.verses span.text { background-color:"+rgb+"; }");
-                jTextPane1.setDocument(doc);
-                jTextPane1.setText(HTMLStr);
-                if(biblegetDB.setStringOption("BGCOLORVERSETEXT", rgb)){
-                    //System.out.println("BGCOLORVERSETEXT was successfully updated in database to value "+rgb);
-                }
-                else{
-                    //System.out.println("Error updating BGCOLORVERSETEXT in database");
-                }
+        ActionListener okActionListener = (ActionEvent actionEvent) -> {
+            bgColorVerseText = jColorChooser.getColor();
+            String rgb = ColorToHexString(bgColorVerseText);
+            styles.addRule("div.results p.verses span.text { background-color:"+rgb+"; }");
+            jTextPane1.setDocument(doc);
+            jTextPane1.setText(HTMLStr);
+            if(biblegetDB.setStringOption("BGCOLORVERSETEXT", rgb)){
+                //System.out.println("BGCOLORVERSETEXT was successfully updated in database to value "+rgb);
+            }
+            else{
+                //System.out.println("Error updating BGCOLORVERSETEXT in database");
             }
         };
         ActionListener cancelActionListener;
-        cancelActionListener = new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent actionEvent){
-                
-            }
+        cancelActionListener = (ActionEvent actionEvent) -> {
         };
         final JDialog jDialog = JColorChooser.createDialog(null,  __("Choose Verse Text Background Color"), true, jColorChooser, okActionListener, cancelActionListener);
         jDialog.setIconImages(setIconImagesBGColor());
@@ -1746,7 +1713,19 @@ public class OptionsFrame extends javax.swing.JFrame {
     private String ColorToHexString(Color color){
         //String rgb = Integer.toHexString(color.getRGB());
         //return "#"+rgb.substring(2, rgb.length());
-        return String.format("#%06X", (0xFFFFFF & color.getRGB()));
+        String hex = "#000000";
+        try{
+            if(color.getAlpha() >= 16 ){
+                hex = "#"+Integer.toHexString(color.getRGB()).substring(2);
+            }
+            else{
+                hex = String.format("#%06X", (0xFFFFFF & color.getRGB()));
+            }
+        }
+        catch(NullPointerException ex){
+            Logger.getLogger(OptionsFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return hex;
     }
     
     /**
@@ -1756,17 +1735,20 @@ public class OptionsFrame extends javax.swing.JFrame {
      */
     public Color HexStringToColor(String str){
         String color = "";
-        if(str.length()==7){
-            if(str.substring(0,1).equals("#")){
-                color = str.substring(1,6);
-            }
-        }
-        else if(str.length()==6){
-            color = str;
-        }
-        else if(str.length()==3){
-            char[] chars = str.toCharArray();
-            color = ""+chars[0]+chars[0]+chars[1]+chars[1]+chars[2]+chars[2];
+        switch (str.length()) {
+            case 7:
+                if(str.substring(0,1).equals("#")){
+                    color = str.substring(1,6);
+                }   break;
+            case 6:
+                color = str;
+                break;
+            case 3:
+                char[] chars = str.toCharArray();
+                color = ""+chars[0]+chars[0]+chars[1]+chars[1]+chars[2]+chars[2];
+                break;
+            default:
+                break;
         }
         return Color.decode(color);
     }
@@ -1788,37 +1770,38 @@ public class OptionsFrame extends javax.swing.JFrame {
         }
         switch(tree.getValueType()) {
             case OBJECT:
-                //System.out.println("OBJECT");
+                System.out.println("OBJECT");
                 JsonObject object = (JsonObject) tree;
                 for (String name : object.keySet())
                    navigateTree(object.get(name), name);
                 break;
             case ARRAY:
-                //System.out.println("ARRAY");
+                System.out.println("ARRAY");
                 JsonArray array = (JsonArray) tree;
                 for (JsonValue val : array)
                    navigateTree(val, null);
                 break;
             case STRING:
+                System.out.println("STRING");
                 JsonString st = (JsonString) tree;
-                //System.out.println("STRING " + st.getString());
+                System.out.println("key " + key + " | STRING " + st.getString());
                 getStringOption(key,st.getString());
                 break;
             case NUMBER:
                 JsonNumber num = (JsonNumber) tree;
-                //System.out.println("NUMBER " + num.toString());
+                System.out.println("NUMBER " + num.toString());
                 getNumberOption(key,num.intValue());
                 break;
             case TRUE:
                 getBooleanOption(key,true);
-                //System.out.println("BOOLEAN " + tree.getValueType().toString());
+                System.out.println("BOOLEAN " + tree.getValueType().toString());
                 break;
             case FALSE:
                 getBooleanOption(key,false);
-                //System.out.println("BOOLEAN " + tree.getValueType().toString());
+                System.out.println("BOOLEAN " + tree.getValueType().toString());
                 break;
             case NULL:
-                //System.out.println("NULL " + tree.getValueType().toString());
+                System.out.println("NULL " + tree.getValueType().toString());
                 break;
         }
     }
@@ -1827,14 +1810,14 @@ public class OptionsFrame extends javax.swing.JFrame {
         switch(key){
             case "PARAGRAPHALIGNMENT": paragraphAlignment = value; break;
             case "PARAGRAPHFONTFAMILY": paragraphFontFamily = value; break;
-            case "TEXTCOLORBOOKCHAPTER": textColorBookChapter = Color.decode(value); break; //decode string representation of hex value
-            case "BGCOLORBOOKCHAPTER": bgColorBookChapter = Color.decode(value); break; //decode string representation of hex value
+            case "TEXTCOLORBOOKCHAPTER": System.out.println("textColorBookChapter="+value); textColorBookChapter = Color.decode(value); break; //decode string representation of hex value
+            case "BGCOLORBOOKCHAPTER": System.out.println("bgColorBookChapter="+value); bgColorBookChapter = Color.decode(value); break; //decode string representation of hex value
             case "VALIGNBOOKCHAPTER": vAlignBookChapter = value; break;
-            case "TEXTCOLORVERSENUMBER": textColorVerseNumber = Color.decode(value); break; //decode string representation of hex value
-            case "BGCOLORVERSENUMBER": bgColorVerseNumber = Color.decode(value); break; //decode string representation of hex value
+            case "TEXTCOLORVERSENUMBER": System.out.println("textColorVerseNumber="+value); textColorVerseNumber = Color.decode(value); break; //decode string representation of hex value
+            case "BGCOLORVERSENUMBER": System.out.println("bgColorVerseNumber="+value); bgColorVerseNumber = Color.decode(value); break; //decode string representation of hex value
             case "VALIGNVERSENUMBER": vAlignVerseNumber = value; break;
-            case "TEXTCOLORVERSETEXT": textColorVerseText = Color.decode(value); break; //decode string representation of hex value
-            case "BGCOLORVERSETEXT": bgColorVerseText = Color.decode(value); break; //decode string representation of hex value
+            case "TEXTCOLORVERSETEXT": System.out.println("textColorVerseText="+value); textColorVerseText = Color.decode(value); break; //decode string representation of hex value
+            case "BGCOLORVERSETEXT": System.out.println("bgColorVerseText="+value); bgColorVerseText = Color.decode(value); break; //decode string representation of hex value
             case "VALIGNVERSETEXT": vAlignVerseText = value; break;
         }
     }
@@ -1906,7 +1889,7 @@ public class OptionsFrame extends javax.swing.JFrame {
             public void run() {
                 try {
                     new OptionsFrame().setVisible(true);
-                } catch (ClassNotFoundException | UnsupportedEncodingException ex) {
+                } catch (ClassNotFoundException | UnsupportedEncodingException | SQLException ex) {
                     Logger.getLogger(OptionsFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }

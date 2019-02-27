@@ -21,6 +21,7 @@ import java.awt.Font;
 import java.awt.HeadlessException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -73,7 +74,7 @@ public final class BibleGetFrame extends javax.swing.JFrame {
      * Creates new form BibleGetFrame
      * @param xController
      */
-    private BibleGetFrame(XController xController) throws ClassNotFoundException {
+    private BibleGetFrame(XController xController) throws ClassNotFoundException, SQLException {
         m_xController = xController;
         screenWidth = (int)java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth();
         screenHeight = (int)java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight();
@@ -90,7 +91,7 @@ public final class BibleGetFrame extends javax.swing.JFrame {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public static BibleGetFrame getInstance(XController xController) throws ClassNotFoundException
+    public static BibleGetFrame getInstance(XController xController) throws ClassNotFoundException, SQLException
     {
         if(instance == null)
         {
@@ -103,7 +104,7 @@ public final class BibleGetFrame extends javax.swing.JFrame {
      *
      * @throws ClassNotFoundException
      */
-    private void prepareDynamicInformation() throws ClassNotFoundException{
+    private void prepareDynamicInformation() throws ClassNotFoundException, SQLException{
         biblegetDB = BibleGetDB.getInstance();
         String bibleVersionsStr = biblegetDB.getMetaData("VERSIONS");
         JsonReader jsonReader = Json.createReader(new StringReader(bibleVersionsStr));
@@ -154,7 +155,7 @@ public final class BibleGetFrame extends javax.swing.JFrame {
     
     }
     
-    public void updateDynamicInformation() throws ClassNotFoundException{
+    public void updateDynamicInformation() throws ClassNotFoundException, SQLException{
         prepareDynamicInformation();
         jList1.setModel(new DefaultEventListModel<>(versionsByLang));
         jList1.setCellRenderer(new VersionCellRenderer());
@@ -309,7 +310,7 @@ public final class BibleGetFrame extends javax.swing.JFrame {
                 String errorDialog = StringUtils.join(errorMessages,"\n\n");
                 JOptionPane.showMessageDialog(null, errorDialog, "ERROR >> MALFORMED QUERYSTRING", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (HeadlessException | ClassNotFoundException | UnknownPropertyException | PropertyVetoException | IllegalArgumentException | WrappedTargetException | UnsupportedEncodingException ex) {
+        } catch (HeadlessException | ClassNotFoundException | UnknownPropertyException | PropertyVetoException | IllegalArgumentException | WrappedTargetException | UnsupportedEncodingException | SQLException ex) {
             Logger.getLogger(BibleGetFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
             

@@ -5,15 +5,14 @@
  */
 package io.bibleget;
 
-import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
+
 
 /**
  *
@@ -25,60 +24,12 @@ public class BibleGetI18N {
     static final ResourceBundle myResources =
       ResourceBundle.getBundle("io.bibleget.resources.messages");
     */
-    private static String lcl;
+    //private static String lcl;
     private static ResourceBundle myResource;
-    private static String iso;
-    
-    
-    /**
-     *
-     * @param s
-     * @return
-     */
-    public static String __(String s) {
-        lcl = BibleGetIO.getLocale();
-        Locale myLocale;
-        myLocale = new Locale(lcl);
-        try{
-            myResource = ResourceBundle.getBundle("io.bibleget.resources.messages",myLocale);
-        } catch(MissingResourceException ex){
-            myResource = ResourceBundle.getBundle("io.bibleget.resources.messages");
-        }
-        
-        if(myResource.containsKey(s)){
-            try {
-                String val = myResource.getString(s);
-                return new String(val.getBytes("ISO-8859-1"), "UTF-8");
-            } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(BibleGetI18N.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        else{ return s; }
-        return null;
-    }
-    
-    /**
-     *
-     * @return
-     */
-    public static ResourceBundle getMessages() {
-        lcl = BibleGetIO.getLocale();
-        Locale myLocale;
-        myLocale = new Locale(lcl);
-        try{
-            myResource = ResourceBundle.getBundle("io.bibleget.resources.messages",myLocale);
-        } catch (MissingResourceException ex){
-            myResource = ResourceBundle.getBundle("io.bibleget.resources.messages");
-        }
-        return myResource;
-    }
-    
-    /**
-     *
-     * @param language
-     * @return
-     */
-    public static String localizeLanguage(String language) {
+    //private static String iso;
+    private static final Map<String, String> LANGUAGECODES;
+    private static final Map<String, String> LANGUAGES_TRANSLATED;
+    static {
         Map<String, String> langcodes = new HashMap<>();
         langcodes.put("AFRIKAANS","af");
         langcodes.put("AKAN","ak");
@@ -204,11 +155,185 @@ public class BibleGetI18N {
         langcodes.put("YIDDISH","yi");
         langcodes.put("YORUBA","yo");
         langcodes.put("ZULU","zu");
-        if(langcodes.containsKey(language)){
-            return WordUtils.capitalizeFully(new Locale(langcodes.get(language)).getDisplayLanguage());
+        LANGUAGECODES = Collections.unmodifiableMap(langcodes);
+    }
+    
+    static {
+        Map<String, String> langcodes = new HashMap<>();
+        langcodes.put("af",new Locale("af").getDisplayLanguage());
+        langcodes.put("ak",new Locale("ak").getDisplayLanguage());
+        langcodes.put("sq",new Locale("sq").getDisplayLanguage());
+        langcodes.put("am",new Locale("am").getDisplayLanguage());
+        langcodes.put("ar",new Locale("ar").getDisplayLanguage());
+        langcodes.put("hy",new Locale("hy").getDisplayLanguage());
+        langcodes.put("az",new Locale("az").getDisplayLanguage());
+        langcodes.put("eu",new Locale("eu").getDisplayLanguage());
+        langcodes.put("be",new Locale("be").getDisplayLanguage());
+        langcodes.put("bn",new Locale("bn").getDisplayLanguage());
+        langcodes.put("bh",new Locale("bh").getDisplayLanguage());
+        langcodes.put("bs",new Locale("bs").getDisplayLanguage());
+        langcodes.put("br",new Locale("br").getDisplayLanguage());
+        langcodes.put("bg",new Locale("bg").getDisplayLanguage());
+        langcodes.put("km",new Locale("km").getDisplayLanguage());
+        langcodes.put("ca",new Locale("ca").getDisplayLanguage());
+        langcodes.put("ny",new Locale("ny").getDisplayLanguage());
+        langcodes.put("zh",new Locale("zh").getDisplayLanguage());
+        langcodes.put("co",new Locale("co").getDisplayLanguage());
+        langcodes.put("hr",new Locale("hr").getDisplayLanguage());
+        langcodes.put("cs",new Locale("cs").getDisplayLanguage());
+        langcodes.put("da",new Locale("da").getDisplayLanguage());
+        langcodes.put("nl",new Locale("nl").getDisplayLanguage());
+        langcodes.put("en",new Locale("en").getDisplayLanguage());
+        langcodes.put("eo",new Locale("eo").getDisplayLanguage());
+        langcodes.put("et",new Locale("et").getDisplayLanguage());
+        langcodes.put("fo",new Locale("fo").getDisplayLanguage());
+        langcodes.put("tl",new Locale("tl").getDisplayLanguage());
+        langcodes.put("fi",new Locale("fi").getDisplayLanguage());
+        langcodes.put("fr",new Locale("fr").getDisplayLanguage());
+        langcodes.put("fy",new Locale("fy").getDisplayLanguage());
+        langcodes.put("gl",new Locale("gl").getDisplayLanguage());
+        langcodes.put("ka",new Locale("ka").getDisplayLanguage());
+        langcodes.put("de",new Locale("de").getDisplayLanguage());
+        langcodes.put("el",new Locale("el").getDisplayLanguage());
+        langcodes.put("gn",new Locale("gn").getDisplayLanguage());
+        langcodes.put("gu",new Locale("gu").getDisplayLanguage());
+        langcodes.put("ht",new Locale("ht").getDisplayLanguage());
+        langcodes.put("ht",new Locale("ht").getDisplayLanguage());
+        langcodes.put("ha",new Locale("ha").getDisplayLanguage());
+        langcodes.put("iw",new Locale("iw").getDisplayLanguage());
+        langcodes.put("hi",new Locale("hi").getDisplayLanguage());
+        langcodes.put("hu",new Locale("hu").getDisplayLanguage());
+        langcodes.put("is",new Locale("is").getDisplayLanguage());
+        langcodes.put("ig",new Locale("ig").getDisplayLanguage());
+        langcodes.put("id",new Locale("id").getDisplayLanguage());
+        langcodes.put("ia",new Locale("ia").getDisplayLanguage());
+        langcodes.put("ga",new Locale("ga").getDisplayLanguage());
+        langcodes.put("it",new Locale("it").getDisplayLanguage());
+        langcodes.put("ja",new Locale("ja").getDisplayLanguage());
+        langcodes.put("jw",new Locale("jw").getDisplayLanguage());
+        langcodes.put("kn",new Locale("kn").getDisplayLanguage());
+        langcodes.put("kk",new Locale("kk").getDisplayLanguage());
+        langcodes.put("rw",new Locale("rw").getDisplayLanguage());
+        langcodes.put("rn",new Locale("rn").getDisplayLanguage());
+        langcodes.put("kg",new Locale("kg").getDisplayLanguage());
+        langcodes.put("ko",new Locale("ko").getDisplayLanguage());
+        langcodes.put("ku",new Locale("ku").getDisplayLanguage());
+        langcodes.put("ky",new Locale("ky").getDisplayLanguage());
+        langcodes.put("lo",new Locale("lo").getDisplayLanguage());
+        langcodes.put("la",new Locale("la").getDisplayLanguage());
+        langcodes.put("lv",new Locale("lv").getDisplayLanguage());
+        langcodes.put("ln",new Locale("ln").getDisplayLanguage());
+        langcodes.put("lt",new Locale("lt").getDisplayLanguage());
+        langcodes.put("lg",new Locale("lg").getDisplayLanguage());
+        langcodes.put("mk",new Locale("mk").getDisplayLanguage());
+        langcodes.put("mg",new Locale("mg").getDisplayLanguage());
+        langcodes.put("ms",new Locale("ms").getDisplayLanguage());
+        langcodes.put("ml",new Locale("ml").getDisplayLanguage());
+        langcodes.put("mt",new Locale("mt").getDisplayLanguage());
+        langcodes.put("mi",new Locale("mi").getDisplayLanguage());
+        langcodes.put("mr",new Locale("mr").getDisplayLanguage());
+        langcodes.put("mo",new Locale("mo").getDisplayLanguage());
+        langcodes.put("mn",new Locale("mn").getDisplayLanguage());
+        langcodes.put("ne",new Locale("ne").getDisplayLanguage());
+        langcodes.put("no",new Locale("no").getDisplayLanguage());
+        langcodes.put("oc",new Locale("oc").getDisplayLanguage());
+        langcodes.put("or",new Locale("or").getDisplayLanguage());
+        langcodes.put("om",new Locale("om").getDisplayLanguage());
+        langcodes.put("ps",new Locale("ps").getDisplayLanguage());
+        langcodes.put("fa",new Locale("fa").getDisplayLanguage());
+        langcodes.put("pl",new Locale("pl").getDisplayLanguage());
+        langcodes.put("pt",new Locale("pt").getDisplayLanguage());
+        langcodes.put("pa",new Locale("pa").getDisplayLanguage());
+        langcodes.put("qu",new Locale("qu").getDisplayLanguage());
+        langcodes.put("ro",new Locale("ro").getDisplayLanguage());
+        langcodes.put("rm",new Locale("rm").getDisplayLanguage());
+        langcodes.put("ru",new Locale("ru").getDisplayLanguage());
+        langcodes.put("gd",new Locale("gd").getDisplayLanguage());
+        langcodes.put("sr",new Locale("sr").getDisplayLanguage());
+        langcodes.put("sh",new Locale("sh").getDisplayLanguage());
+        langcodes.put("st",new Locale("st").getDisplayLanguage());
+        langcodes.put("tn",new Locale("tn").getDisplayLanguage());
+        langcodes.put("sn",new Locale("sn").getDisplayLanguage());
+        langcodes.put("sd",new Locale("sd").getDisplayLanguage());
+        langcodes.put("si",new Locale("si").getDisplayLanguage());
+        langcodes.put("sk",new Locale("sk").getDisplayLanguage());
+        langcodes.put("sl",new Locale("sl").getDisplayLanguage());
+        langcodes.put("so",new Locale("so").getDisplayLanguage());
+        langcodes.put("es",new Locale("es").getDisplayLanguage());
+        langcodes.put("su",new Locale("su").getDisplayLanguage());
+        langcodes.put("sw",new Locale("sw").getDisplayLanguage());
+        langcodes.put("sv",new Locale("sv").getDisplayLanguage());
+        langcodes.put("tg",new Locale("tg").getDisplayLanguage());
+        langcodes.put("ta",new Locale("ta").getDisplayLanguage());
+        langcodes.put("tt",new Locale("tt").getDisplayLanguage());
+        langcodes.put("te",new Locale("te").getDisplayLanguage());
+        langcodes.put("th",new Locale("th").getDisplayLanguage());
+        langcodes.put("ti",new Locale("ti").getDisplayLanguage());
+        langcodes.put("to",new Locale("to").getDisplayLanguage());
+        langcodes.put("tr",new Locale("tr").getDisplayLanguage());
+        langcodes.put("tk",new Locale("tk").getDisplayLanguage());
+        langcodes.put("tw",new Locale("tw").getDisplayLanguage());
+        langcodes.put("ug",new Locale("ug").getDisplayLanguage());
+        langcodes.put("uk",new Locale("uk").getDisplayLanguage());
+        langcodes.put("ur",new Locale("ur").getDisplayLanguage());
+        langcodes.put("uz",new Locale("uz").getDisplayLanguage());
+        langcodes.put("vi",new Locale("vi").getDisplayLanguage());
+        langcodes.put("cy",new Locale("cy").getDisplayLanguage());
+        langcodes.put("wo",new Locale("wo").getDisplayLanguage());
+        langcodes.put("xh",new Locale("xh").getDisplayLanguage());
+        langcodes.put("yi",new Locale("yi").getDisplayLanguage());
+        langcodes.put("yo",new Locale("yo").getDisplayLanguage());
+        langcodes.put("zu",new Locale("zu").getDisplayLanguage());
+        LANGUAGES_TRANSLATED = Collections.unmodifiableMap(langcodes);
+    }
+    /**
+     *
+     * @param s
+     * @return
+     */
+    public static String __(String s) {
+        try{
+            myResource = ResourceBundle.getBundle("io.bibleget.resources.messages",BibleGetIO.getUILocale(),new io.bibleget.UTF8Control());
+        } catch(MissingResourceException ex){
+            myResource = ResourceBundle.getBundle("io.bibleget.resources.messages");
+        }
+        
+        if(myResource.containsKey(s)){            
+            String val = myResource.getString(s);
+            return val;            
+        }
+        else{ return s; }
+    }
+    
+    /**
+     *
+     * @return
+     */
+    /*
+    public static ResourceBundle getMessages() {
+        try{
+            myResource = ResourceBundle.getBundle("io.bibleget.resources.messages",BibleGetIO.getUILocale(),new io.bibleget.UTF8Control());
+        } catch (MissingResourceException ex){
+            myResource = ResourceBundle.getBundle("io.bibleget.resources.messages");
+        }
+        return myResource;
+    }
+    */
+    /**
+     *
+     * @param language
+     * @return
+     */
+    public static String localizeLanguage(String language) {
+        if(LANGUAGECODES.containsKey(language)){
+            String langKey = LANGUAGECODES.get(language);
+            String localizedLang = LANGUAGES_TRANSLATED.get(langKey);
+            System.out.println("BibleGetI18N.java: language = "+language+", langKey = "+langKey+", localizedLang = "+localizedLang);
+            return WordUtils.capitalizeFully(localizedLang);
         }
         else{
             return WordUtils.capitalizeFully(language);
         }
     }
 }
+

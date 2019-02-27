@@ -55,7 +55,7 @@ public class BibleGetDB {
         }
     }
     
-    public static BibleGetDB getInstance() throws ClassNotFoundException {
+    public static BibleGetDB getInstance() throws ClassNotFoundException, SQLException {
         if(instance == null)
         {            
             instance = new BibleGetDB();
@@ -69,378 +69,6 @@ public class BibleGetDB {
         }
         return instance;        
     }
-
-    public boolean initialize() {
-    
-        try {
-            instance.conn = DriverManager.getConnection(
-                    "jdbc:derby:BIBLEGET;create=true",
-                    "bibleget",
-                    "bibleget");
-            if(instance.conn==null){ 
-                System.out.println("Careful there! Connection not established! BibleGetDB.java line 81");
-            }
-            else{
-                System.out.println("conn is not null, which means a connection was correctly established.");
-            }
-            DatabaseMetaData dbMeta;
-            dbMeta = instance.conn.getMetaData();
-            try (ResultSet rs1 = dbMeta.getTables(null, null, "OPTIONS", null)) {
-                if(rs1.next())
-                {
-                    //System.out.println("Table "+rs1.getString("TABLE_NAME")+" already exists !!");
-                    listColNamesTypes(dbMeta,rs1);
-                }
-                else
-                {
-                    //System.out.println("Table OPTIONS does not yet exist, now attempting to create...");
-                    try ( Statement stmt = instance.conn.createStatement()) {
-                        
-                        String defaultFont = "";
-                        if(SystemUtils.IS_OS_WINDOWS){
-                            defaultFont = "Times New Roman";
-                        }
-                        else if(SystemUtils.IS_OS_MAC_OSX){
-                            defaultFont = "Helvetica";
-                        }
-                        else if(SystemUtils.IS_OS_LINUX){
-                            defaultFont = "Arial";
-                        }
-                        
-                        String tableCreate = "CREATE TABLE OPTIONS ("
-                                + "PARAGRAPHALIGNMENT VARCHAR(15), "
-                                + "PARAGRAPHLINESPACING INT, "
-                                + "PARAGRAPHFONTFAMILY VARCHAR(50), "
-                                + "PARAGRAPHLEFTINDENT INT, "
-                                + "TEXTCOLORBOOKCHAPTER VARCHAR(15), "
-                                + "BGCOLORBOOKCHAPTER VARCHAR(15), "
-                                + "BOLDBOOKCHAPTER BOOLEAN, "
-                                + "ITALICSBOOKCHAPTER BOOLEAN, "
-                                + "UNDERSCOREBOOKCHAPTER BOOLEAN, "
-                                + "FONTSIZEBOOKCHAPTER INT, "
-                                + "VALIGNBOOKCHAPTER VARCHAR(15), "
-                                + "TEXTCOLORVERSENUMBER VARCHAR(15), "
-                                + "BGCOLORVERSENUMBER VARCHAR(15), "
-                                + "BOLDVERSENUMBER BOOLEAN, "
-                                + "ITALICSVERSENUMBER BOOLEAN, "
-                                + "UNDERSCOREVERSENUMBER BOOLEAN, "
-                                + "FONTSIZEVERSENUMBER INT, "
-                                + "VALIGNVERSENUMBER VARCHAR(15), "
-                                + "TEXTCOLORVERSETEXT VARCHAR(15), "
-                                + "BGCOLORVERSETEXT VARCHAR(15), "
-                                + "BOLDVERSETEXT BOOLEAN, "
-                                + "ITALICSVERSETEXT BOOLEAN, "
-                                + "UNDERSCOREVERSETEXT BOOLEAN, "
-                                + "FONTSIZEVERSETEXT INT, "
-                                + "VALIGNVERSETEXT VARCHAR(15), "
-                                + "PREFERREDVERSIONS VARCHAR(50), "
-                                + "NOVERSIONFORMATTING BOOLEAN"
-                                + ")";
-                        
-                        
-                        String tableInsert;
-                        tableInsert = "INSERT INTO OPTIONS ("
-                                + "PARAGRAPHALIGNMENT,"
-                                + "PARAGRAPHLINESPACING,"
-                                + "PARAGRAPHFONTFAMILY,"
-                                + "PARAGRAPHLEFTINDENT,"
-                                + "TEXTCOLORBOOKCHAPTER,"
-                                + "BGCOLORBOOKCHAPTER,"
-                                + "BOLDBOOKCHAPTER,"
-                                + "ITALICSBOOKCHAPTER,"
-                                + "UNDERSCOREBOOKCHAPTER,"
-                                + "FONTSIZEBOOKCHAPTER,"
-                                + "VALIGNBOOKCHAPTER,"
-                                + "TEXTCOLORVERSENUMBER,"
-                                + "BGCOLORVERSENUMBER,"
-                                + "BOLDVERSENUMBER,"
-                                + "ITALICSVERSENUMBER,"
-                                + "UNDERSCOREVERSENUMBER,"
-                                + "FONTSIZEVERSENUMBER,"
-                                + "VALIGNVERSENUMBER,"
-                                + "TEXTCOLORVERSETEXT,"
-                                + "BGCOLORVERSETEXT,"
-                                + "BOLDVERSETEXT,"
-                                + "ITALICSVERSETEXT,"
-                                + "UNDERSCOREVERSETEXT,"
-                                + "FONTSIZEVERSETEXT,"
-                                + "VALIGNVERSETEXT,"
-                                + "PREFERREDVERSIONS, "
-                                + "NOVERSIONFORMATTING"
-                                + ") VALUES ("
-                                + "'justify',100,'"+defaultFont+"',0,"
-                                + "'#0000FF','#FFFFFF',true,false,false,14,'initial',"
-                                + "'#AA0000','#FFFFFF',false,false,false,10,'super',"
-                                + "'#696969','#FFFFFF',false,false,false,12,'initial',"
-                                + "'NVBSE',"
-                                + "false"
-                                + ")";
-                        boolean tableCreated = stmt.execute(tableCreate);
-                        boolean rowsInserted;
-                        int count;
-                        if(tableCreated==false){
-                            //is false when it's an update count!
-                            count = stmt.getUpdateCount();
-                            if(count==-1){
-                                //System.out.println("The result is a ResultSet object or there are no more results.");
-                            }
-                            else{
-                                //this is our expected behaviour: 0 rows affected
-                                //System.out.println("The Table Creation statement produced results: "+count+" rows affected.");
-                                try (Statement stmt2 = instance.conn.createStatement()) {
-                                    rowsInserted = stmt2.execute(tableInsert);
-                                    if(rowsInserted==false){
-                                        count = stmt2.getUpdateCount();
-                                        if(count==-1){
-                                            //System.out.println("The result is a ResultSet object or there are no more results.");
-                                        }
-                                        else{
-                                            //this is our expected behaviour: n rows affected
-                                            //System.out.println("The Row Insertion statement produced results: "+count+" rows affected.");
-                                            dbMeta = instance.conn.getMetaData();
-                                            try (ResultSet rs2 = dbMeta.getTables(null, null, "OPTIONS", null)) {
-                                                if(rs2.next())
-                                                {
-                                                    listColNamesTypes(dbMeta,rs2);
-                                                }
-                                                rs2.close();
-                                            }
-                                        }
-                                    }
-                                    else{
-                                        //is true when it returns a resultset, which shouldn't be the case here
-                                        try ( ResultSet rx = stmt2.getResultSet()) {
-                                            while(rx.next()){
-                                                //System.out.println("This isn't going to happen anyways, so...");
-                                            }
-                                            rx.close();
-                                        }
-                                    }
-                                    stmt2.close();
-                                }
-                            }
-                            
-                        }
-                        else{
-                            //is true when it returns a resultset, which shouldn't be the case here
-                            try (ResultSet rx = stmt.getResultSet()) {
-                                while(rx.next()){
-                                    //System.out.println("This isn't going to happen anyways, so...");
-                                }
-                                rx.close();
-                            }
-                        }
-                        stmt.close();
-                    }
-                }
-                rs1.close();
-            }
-            //System.out.println("Finished with first ResultSet resource, now going on to next...");
-            try (ResultSet rs3 = dbMeta.getTables(null, null, "METADATA", null)) {
-                if(rs3.next())
-                {
-                    //System.out.println("Table "+rs3.getString("TABLE_NAME")+" already exists !!");
-                }
-                else{
-                    //System.out.println("Table METADATA does not exist, now attempting to create...");
-                    try (Statement stmt = instance.conn.createStatement()) {
-                        String tableCreate = "CREATE TABLE METADATA (";
-                        tableCreate += "ID INT, ";
-                        for(int i=0;i<73;i++){
-                            tableCreate += "BIBLEBOOKS"+Integer.toString(i)+" VARCHAR(2000), ";
-                        }
-                        tableCreate += "LANGUAGES VARCHAR(500), ";
-                        tableCreate += "VERSIONS VARCHAR(2000)";
-                        tableCreate += ")";
-                        boolean tableCreated = stmt.execute(tableCreate);
-                        boolean rowsInserted;
-                        int count;
-                        if(tableCreated==false){
-                            //this is the expected result, is false when it's an update count!
-                            count = stmt.getUpdateCount();
-                            if(count==-1){
-                                //System.out.println("The result is a ResultSet object or there are no more results.");
-                            }
-                            else{
-                                //this is our expected behaviour: 0 rows affected
-                                //System.out.println("The Table Creation statement produced results: "+count+" rows affected.");
-                                //Insert a dummy row, because you cannot update what has not been inserted!                                
-                                try ( Statement stmtX = instance.conn.createStatement()) {
-                                    stmtX.execute("INSERT INTO METADATA (ID) VALUES (0)");
-                                    stmtX.close();
-                                }
-                                
-                                HTTPCaller myHTTPCaller = new HTTPCaller();
-                                String myResponse;
-                                myResponse = myHTTPCaller.getMetaData("biblebooks");
-                                if(myResponse != null){
-                                    JsonReader jsonReader = Json.createReader(new StringReader(myResponse));
-                                    JsonObject json = jsonReader.readObject();
-                                    JsonArray arrayJson = json.getJsonArray("results");
-                                    if(arrayJson != null){
-                                        
-                                        ListIterator pIterator = arrayJson.listIterator();
-                                        while (pIterator.hasNext())
-                                        {
-                                            try(Statement stmt2 = instance.conn.createStatement()) {
-                                                int index = pIterator.nextIndex();
-                                                JsonArray currentJson = (JsonArray) pIterator.next();
-                                                String biblebooks_str = currentJson.toString(); //.replaceAll("\"", "\\\\\"");
-                                                //System.out.println("BibleGetDB line 267: BIBLEBOOKS"+Integer.toString(index)+"='"+biblebooks_str+"'");
-                                                String stmt_str = "UPDATE METADATA SET BIBLEBOOKS"+Integer.toString(index)+"='"+biblebooks_str+"' WHERE ID=0";
-                                                try{
-                                                    //System.out.println("executing update: "+stmt_str);
-                                                    int update = stmt2.executeUpdate(stmt_str);
-                                                    //System.out.println("executeUpdate resulted in: "+Integer.toString(update));
-                                                } catch (SQLException ex){
-                                                    Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
-                                                }
-                                                stmt2.close();
-                                            }
-                                        }
-                                    }
-                                    
-                                    arrayJson = json.getJsonArray("languages");
-                                    if(arrayJson != null){
-                                        try(Statement stmt2 = instance.conn.createStatement()) {
-                                            
-                                            String languages_str = arrayJson.toString(); //.replaceAll("\"", "\\\\\"");
-                                            String stmt_str = "UPDATE METADATA SET LANGUAGES='"+languages_str+"' WHERE ID=0";
-                                            try{
-                                                int update = stmt2.executeUpdate(stmt_str);
-                                            } catch (SQLException ex){
-                                                Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-                                            stmt2.close();
-                                        }                                    
-                                    }
-                                }
-                                
-                                myResponse = myHTTPCaller.getMetaData("bibleversions");
-                                if(myResponse != null){
-                                    JsonReader jsonReader = Json.createReader(new StringReader(myResponse));
-                                    JsonObject json = jsonReader.readObject();
-                                    JsonObject objJson = json.getJsonObject("validversions_fullname");
-                                    if(objJson != null){
-                                        String bibleversions_str = objJson.toString(); //.replaceAll("\"", "\\\\\"");
-                                        try(Statement stmt2 = instance.conn.createStatement()){
-                                            String stmt_str = "UPDATE METADATA SET VERSIONS='"+bibleversions_str+"' WHERE ID=0";
-                                            try{
-                                                int update = stmt2.executeUpdate(stmt_str);
-                                            } catch (SQLException ex){
-                                                Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-                                            stmt2.close();
-                                        }
-                                        
-                                        Set<String> versionsabbrev = objJson.keySet();
-                                        if(!versionsabbrev.isEmpty()){
-                                            String versionsabbrev_str = "";
-                                            for(String s:versionsabbrev) {
-                                                versionsabbrev_str += ("".equals(versionsabbrev_str)?"":",")+s;
-                                            }
-                                            
-                                            myResponse = myHTTPCaller.getMetaData("versionindex&versions="+versionsabbrev_str);
-                                            if(myResponse != null){
-                                                jsonReader = Json.createReader(new StringReader(myResponse));
-                                                json = jsonReader.readObject();
-                                                objJson = json.getJsonObject("indexes");
-                                                if(objJson != null){
-                                                    
-                                                    for (String name : objJson.keySet()){
-                                                        JsonObjectBuilder tempBld = Json.createObjectBuilder();
-                                                        JsonObject book_num = objJson.getJsonObject(name);
-                                                        tempBld.add("book_num", book_num.getJsonArray("book_num"));
-                                                        tempBld.add("chapter_limit", book_num.getJsonArray("chapter_limit"));
-                                                        tempBld.add("verse_limit", book_num.getJsonArray("verse_limit"));
-                                                        JsonObject temp = tempBld.build();
-                                                        String versionindex_str = temp.toString(); //.replaceAll("\"", "\\\\\"");
-                                                        //add new column to METADATA table name+"IDX" VARCHAR(5000)
-                                                        //update METADATA table SET name+"IDX" = versionindex_str
-                                                        try(Statement stmt3 = instance.conn.createStatement()){
-                                                            String sql = "ALTER TABLE METADATA ADD COLUMN "+name+"IDX VARCHAR(5000)";
-                                                            boolean colAdded = stmt3.execute(sql);
-                                                            if(colAdded==false) {
-                                                                count = stmt3.getUpdateCount();
-                                                                if(count==-1){
-                                                                    //System.out.println("The result is a ResultSet object or there are no more results.");
-                                                                }
-                                                                else if(count==0){
-                                                                    //0 rows affected
-                                                                    stmt3.close();
-                                                                    
-                                                                    try(Statement stmt4 = instance.conn.createStatement()){
-                                                                        String sql1 = "UPDATE METADATA SET "+name+"IDX='"+versionindex_str+"' WHERE ID=0";
-                                                                        boolean rowsUpdated = stmt4.execute(sql1);
-                                                                        if(rowsUpdated==false) {
-                                                                            count = stmt4.getUpdateCount();
-                                                                            if(count==-1){
-                                                                                //System.out.println("The result is a ResultSet object or there are no more results.");
-                                                                            }
-                                                                            else{
-                                                                                //should have affected only one row
-                                                                                if(count==1){
-                                                                                    //System.out.println(sql1+" seems to have returned true");
-                                                                                    stmt4.close();
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                        else{
-                                                                            //returns true only when returning a resultset; should not be the case here
-                                                                        }
-                                                                        
-                                                                    }
-                                                                    
-                                                                }
-                                                            }
-                                                            else{
-                                                                //returns true only when returning a resultset; should not be the case here
-                                                            }
-                                                            
-                                                            stmt3.close();
-                                                        }
-                                                    }
-                                                    
-                                                }
-                                            }
-                                            
-                                        }
-                                        
-                                        
-                                        
-                                    }
-                                }
-                                
-                            }
-                        }
-                        else{
-                            //is true when it returns a resultset, which shouldn't be the case here
-                            ResultSet rx = stmt.getResultSet();
-                            while(rx.next()){
-                                //System.out.println("This isn't going to happen anyways, so...");
-                            }
-                        }
-                        stmt.close();
-                    }
-                }
-                rs3.close();
-            }
-            instance.conn.close();
-            return true;
-        } catch (SQLException ex) {
-            if( ex.getSQLState().equals("X0Y32") ) {
-                Logger.getLogger(BibleGetDB.class.getName()).log(Level.INFO, null, "Table OPTIONS or Table METADATA already exists.  No need to recreate");
-                return true;
-            } else if (ex.getNextException().getErrorCode() ==  45000) {
-                //this means we already have a connection, so this is good too
-                return true;
-            } else {
-                //Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex.getMessage() + " : " + Arrays.toString(ex.getStackTrace()));
-                Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
-        }                
-    }
     
     public boolean connect() {
         try {
@@ -449,11 +77,8 @@ public class BibleGetDB {
                     "bibleget",
                     "bibleget");
         } catch (SQLException ex) {
-            if( ex.getSQLState().equals("X0Y32") ) {
-                Logger.getLogger(BibleGetDB.class.getName()).log(Level.INFO, null, "Table OPTIONS or Table METADATA already exists.  No need to recreate");
-                return true;
-            } else if (ex.getNextException().getErrorCode() ==  45000) {
-                //this means we already have a connection, so this is good too
+            if (ex.getNextException().getErrorCode() ==  45000) {
+                //this means we already have a connection, so return true (hoping it's not something else that has connected?)
                 return true;
             } else {
                 //Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex.getMessage() + " : " + Arrays.toString(ex.getStackTrace()));
@@ -488,6 +113,416 @@ public class BibleGetDB {
         System.setProperty("derby.system.home", System.getProperty("user.home") + derbyhome);
     }
  
+
+    public boolean initialize() throws SQLException {
+    
+        try {
+            instance.conn = DriverManager.getConnection(
+                    "jdbc:derby:BIBLEGET;create=true",
+                    "bibleget",
+                    "bibleget");
+            if(instance.conn==null){ 
+                System.out.println("Careful there! Connection not established! BibleGetDB.java line 81");
+                return false;
+            }
+            else{
+                System.out.println("instance.conn is not null, which means a connection was correctly established in order to create the BibleGet database.");
+                return instance.getOrSetDBData("SET");
+            }
+        } catch (SQLException ex) {
+            if( ex.getSQLState().equals("X0Y32") ) {
+                Logger.getLogger(BibleGetDB.class.getName()).log(Level.INFO, null, "Table OPTIONS or Table METADATA already exists.  No need to recreate");
+                System.out.println("Table OPTIONS or Table METADATA already exists.  No need to recreate: "+ex.getMessage());
+                return instance.getOrSetDBData("GET");
+            } else if (ex.getNextException().getErrorCode() ==  45000) {
+                //this means we already have a connection, so this is good too
+                System.out.println("Seems like we already have a connection: "+ex.getMessage()+" "+ex.getNextException().getMessage());
+                return instance.getOrSetDBData("GET");
+            } else {
+                //Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex.getMessage() + " : " + Arrays.toString(ex.getStackTrace()));
+                Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Not sure what the problem might be with the database connection: "+ex.getMessage());
+                return false;
+            }
+        }                
+    }
+   
+    private boolean getOrSetDBData(String whatToDo) throws SQLException{
+        DatabaseMetaData dbMeta;
+        dbMeta = instance.conn.getMetaData();
+        if("SET".equals(whatToDo)){
+            System.out.println("Surely we have to create the tables at this point");
+        }
+        else if("GET".equals(whatToDo)){
+            System.out.println("Seems that the tables already exist, so we need only get the data in order to build the Json Object");
+        }
+        try (ResultSet rs1 = dbMeta.getTables(null, null, "OPTIONS", null)) {
+            if(rs1.next())
+            {
+                System.out.println("Table "+rs1.getString("TABLE_NAME")+" already exists !!");
+                listColNamesTypes(dbMeta,rs1);
+                StringBuilder sb = new StringBuilder();
+                int i=0;
+                for (String s : colNames) {
+                    sb.append(s);
+                    sb.append(":");
+                    sb.append(colDataTypes.get(i));
+                    sb.append(",");
+                    i = i+1;
+                }
+                System.out.println(sb.toString());
+            }
+            else
+            {
+                //System.out.println("Table OPTIONS does not yet exist, now attempting to create...");
+                try ( Statement stmt = instance.conn.createStatement()) {
+
+                    String defaultFont = "";
+                    if(SystemUtils.IS_OS_WINDOWS){
+                        defaultFont = "Times New Roman";
+                    }
+                    else if(SystemUtils.IS_OS_MAC_OSX){
+                        defaultFont = "Helvetica";
+                    }
+                    else if(SystemUtils.IS_OS_LINUX){
+                        defaultFont = "Arial";
+                    }
+
+                    String tableCreate = "CREATE TABLE OPTIONS ("
+                            + "PARAGRAPHALIGNMENT VARCHAR(15), "
+                            + "PARAGRAPHLINESPACING INT, "
+                            + "PARAGRAPHFONTFAMILY VARCHAR(50), "
+                            + "PARAGRAPHLEFTINDENT INT, "
+                            + "TEXTCOLORBOOKCHAPTER VARCHAR(15), "
+                            + "BGCOLORBOOKCHAPTER VARCHAR(15), "
+                            + "BOLDBOOKCHAPTER BOOLEAN, "
+                            + "ITALICSBOOKCHAPTER BOOLEAN, "
+                            + "UNDERSCOREBOOKCHAPTER BOOLEAN, "
+                            + "FONTSIZEBOOKCHAPTER INT, "
+                            + "VALIGNBOOKCHAPTER VARCHAR(15), "
+                            + "TEXTCOLORVERSENUMBER VARCHAR(15), "
+                            + "BGCOLORVERSENUMBER VARCHAR(15), "
+                            + "BOLDVERSENUMBER BOOLEAN, "
+                            + "ITALICSVERSENUMBER BOOLEAN, "
+                            + "UNDERSCOREVERSENUMBER BOOLEAN, "
+                            + "FONTSIZEVERSENUMBER INT, "
+                            + "VALIGNVERSENUMBER VARCHAR(15), "
+                            + "TEXTCOLORVERSETEXT VARCHAR(15), "
+                            + "BGCOLORVERSETEXT VARCHAR(15), "
+                            + "BOLDVERSETEXT BOOLEAN, "
+                            + "ITALICSVERSETEXT BOOLEAN, "
+                            + "UNDERSCOREVERSETEXT BOOLEAN, "
+                            + "FONTSIZEVERSETEXT INT, "
+                            + "VALIGNVERSETEXT VARCHAR(15), "
+                            + "PREFERREDVERSIONS VARCHAR(50), "
+                            + "NOVERSIONFORMATTING BOOLEAN"
+                            + ")";
+
+
+                    String tableInsert;
+                    tableInsert = "INSERT INTO OPTIONS ("
+                            + "PARAGRAPHALIGNMENT,"
+                            + "PARAGRAPHLINESPACING,"
+                            + "PARAGRAPHFONTFAMILY,"
+                            + "PARAGRAPHLEFTINDENT,"
+                            + "TEXTCOLORBOOKCHAPTER,"
+                            + "BGCOLORBOOKCHAPTER,"
+                            + "BOLDBOOKCHAPTER,"
+                            + "ITALICSBOOKCHAPTER,"
+                            + "UNDERSCOREBOOKCHAPTER,"
+                            + "FONTSIZEBOOKCHAPTER,"
+                            + "VALIGNBOOKCHAPTER,"
+                            + "TEXTCOLORVERSENUMBER,"
+                            + "BGCOLORVERSENUMBER,"
+                            + "BOLDVERSENUMBER,"
+                            + "ITALICSVERSENUMBER,"
+                            + "UNDERSCOREVERSENUMBER,"
+                            + "FONTSIZEVERSENUMBER,"
+                            + "VALIGNVERSENUMBER,"
+                            + "TEXTCOLORVERSETEXT,"
+                            + "BGCOLORVERSETEXT,"
+                            + "BOLDVERSETEXT,"
+                            + "ITALICSVERSETEXT,"
+                            + "UNDERSCOREVERSETEXT,"
+                            + "FONTSIZEVERSETEXT,"
+                            + "VALIGNVERSETEXT,"
+                            + "PREFERREDVERSIONS, "
+                            + "NOVERSIONFORMATTING"
+                            + ") VALUES ("
+                            + "'justify',100,'"+defaultFont+"',0,"
+                            + "'#0000FF','#FFFFFF',true,false,false,14,'initial',"
+                            + "'#AA0000','#FFFFFF',false,false,false,10,'super',"
+                            + "'#696969','#FFFFFF',false,false,false,12,'initial',"
+                            + "'NVBSE',"
+                            + "false"
+                            + ")";
+                    boolean tableCreated = stmt.execute(tableCreate);
+                    boolean rowsInserted;
+                    int count;
+                    if(tableCreated==false){
+                        //is false when it's an update count!
+                        count = stmt.getUpdateCount();
+                        if(count==-1){
+                            //System.out.println("The result is a ResultSet object or there are no more results.");
+                        }
+                        else{
+                            //this is our expected behaviour: 0 rows affected
+                            //System.out.println("The Table Creation statement produced results: "+count+" rows affected.");
+                            try (Statement stmt2 = instance.conn.createStatement()) {
+                                rowsInserted = stmt2.execute(tableInsert);
+                                if(rowsInserted==false){
+                                    count = stmt2.getUpdateCount();
+                                    if(count==-1){
+                                        //System.out.println("The result is a ResultSet object or there are no more results.");
+                                    }
+                                    else{
+                                        //this is our expected behaviour: n rows affected
+                                        //System.out.println("The Row Insertion statement produced results: "+count+" rows affected.");
+                                        dbMeta = instance.conn.getMetaData();
+                                        try (ResultSet rs2 = dbMeta.getTables(null, null, "OPTIONS", null)) {
+                                            if(rs2.next())
+                                            {
+                                                listColNamesTypes(dbMeta,rs2);
+                                            }
+                                            rs2.close();
+                                        }
+                                    }
+                                }
+                                else{
+                                    //is true when it returns a resultset, which shouldn't be the case here
+                                    try ( ResultSet rx = stmt2.getResultSet()) {
+                                        while(rx.next()){
+                                            //System.out.println("This isn't going to happen anyways, so...");
+                                        }
+                                        rx.close();
+                                    }
+                                }
+                                stmt2.close();
+                            }
+                        }
+
+                    }
+                    else{
+                        //is true when it returns a resultset, which shouldn't be the case here
+                        try (ResultSet rx = stmt.getResultSet()) {
+                            while(rx.next()){
+                                //System.out.println("This isn't going to happen anyways, so...");
+                            }
+                            rx.close();
+                        }
+                    }
+                    stmt.close();
+                }
+            }
+            rs1.close();
+        }
+        catch(SQLException ex){
+            System.out.println("Error initializing database: "+ex.getMessage());
+            return false;
+        }
+        //System.out.println("Finished with first ResultSet resource, now going on to next...");
+        try (ResultSet rs3 = dbMeta.getTables(null, null, "METADATA", null)) {
+            if(rs3.next())
+            {
+                //System.out.println("Table "+rs3.getString("TABLE_NAME")+" already exists !!");
+            }
+            else{
+                //System.out.println("Table METADATA does not exist, now attempting to create...");
+                try (Statement stmt = instance.conn.createStatement()) {
+                    String tableCreate = "CREATE TABLE METADATA (";
+                    tableCreate += "ID INT, ";
+                    for(int i=0;i<73;i++){
+                        tableCreate += "BIBLEBOOKS"+Integer.toString(i)+" VARCHAR(2000), ";
+                    }
+                    tableCreate += "LANGUAGES VARCHAR(500), ";
+                    tableCreate += "VERSIONS VARCHAR(2000)";
+                    tableCreate += ")";
+                    boolean tableCreated = stmt.execute(tableCreate);
+                    boolean rowsInserted;
+                    int count;
+                    if(tableCreated==false){
+                        //this is the expected result, is false when it's an update count!
+                        count = stmt.getUpdateCount();
+                        if(count==-1){
+                            //System.out.println("The result is a ResultSet object or there are no more results.");
+                        }
+                        else{
+                            //this is our expected behaviour: 0 rows affected
+                            //System.out.println("The Table Creation statement produced results: "+count+" rows affected.");
+                            //Insert a dummy row, because you cannot update what has not been inserted!                                
+                            try ( Statement stmtX = instance.conn.createStatement()) {
+                                stmtX.execute("INSERT INTO METADATA (ID) VALUES (0)");
+                                stmtX.close();
+                            }
+
+                            HTTPCaller myHTTPCaller = new HTTPCaller();
+                            String myResponse;
+                            myResponse = myHTTPCaller.getMetaData("biblebooks");
+                            if(myResponse != null){
+                                JsonReader jsonReader = Json.createReader(new StringReader(myResponse));
+                                JsonObject json = jsonReader.readObject();
+                                JsonArray arrayJson = json.getJsonArray("results");
+                                if(arrayJson != null){
+
+                                    ListIterator pIterator = arrayJson.listIterator();
+                                    while (pIterator.hasNext())
+                                    {
+                                        try(Statement stmt2 = instance.conn.createStatement()) {
+                                            int index = pIterator.nextIndex();
+                                            JsonArray currentJson = (JsonArray) pIterator.next();
+                                            String biblebooks_str = currentJson.toString(); //.replaceAll("\"", "\\\\\"");
+                                            //System.out.println("BibleGetDB line 267: BIBLEBOOKS"+Integer.toString(index)+"='"+biblebooks_str+"'");
+                                            String stmt_str = "UPDATE METADATA SET BIBLEBOOKS"+Integer.toString(index)+"='"+biblebooks_str+"' WHERE ID=0";
+                                            try{
+                                                //System.out.println("executing update: "+stmt_str);
+                                                int update = stmt2.executeUpdate(stmt_str);
+                                                //System.out.println("executeUpdate resulted in: "+Integer.toString(update));
+                                            } catch (SQLException ex){
+                                                Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+                                            stmt2.close();
+                                        }
+                                    }
+                                }
+
+                                arrayJson = json.getJsonArray("languages");
+                                if(arrayJson != null){
+                                    try(Statement stmt2 = instance.conn.createStatement()) {
+
+                                        String languages_str = arrayJson.toString(); //.replaceAll("\"", "\\\\\"");
+                                        String stmt_str = "UPDATE METADATA SET LANGUAGES='"+languages_str+"' WHERE ID=0";
+                                        try{
+                                            int update = stmt2.executeUpdate(stmt_str);
+                                        } catch (SQLException ex){
+                                            Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                        stmt2.close();
+                                    }                                    
+                                }
+                            }
+
+                            myResponse = myHTTPCaller.getMetaData("bibleversions");
+                            if(myResponse != null){
+                                JsonReader jsonReader = Json.createReader(new StringReader(myResponse));
+                                JsonObject json = jsonReader.readObject();
+                                JsonObject objJson = json.getJsonObject("validversions_fullname");
+                                if(objJson != null){
+                                    String bibleversions_str = objJson.toString(); //.replaceAll("\"", "\\\\\"");
+                                    try(Statement stmt2 = instance.conn.createStatement()){
+                                        String stmt_str = "UPDATE METADATA SET VERSIONS='"+bibleversions_str+"' WHERE ID=0";
+                                        try{
+                                            int update = stmt2.executeUpdate(stmt_str);
+                                        } catch (SQLException ex){
+                                            Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                        stmt2.close();
+                                    }
+
+                                    Set<String> versionsabbrev = objJson.keySet();
+                                    if(!versionsabbrev.isEmpty()){
+                                        String versionsabbrev_str = "";
+                                        for(String s:versionsabbrev) {
+                                            versionsabbrev_str += ("".equals(versionsabbrev_str)?"":",")+s;
+                                        }
+
+                                        myResponse = myHTTPCaller.getMetaData("versionindex&versions="+versionsabbrev_str);
+                                        if(myResponse != null){
+                                            jsonReader = Json.createReader(new StringReader(myResponse));
+                                            json = jsonReader.readObject();
+                                            objJson = json.getJsonObject("indexes");
+                                            if(objJson != null){
+
+                                                for (String name : objJson.keySet()){
+                                                    JsonObjectBuilder tempBld = Json.createObjectBuilder();
+                                                    JsonObject book_num = objJson.getJsonObject(name);
+                                                    tempBld.add("book_num", book_num.getJsonArray("book_num"));
+                                                    tempBld.add("chapter_limit", book_num.getJsonArray("chapter_limit"));
+                                                    tempBld.add("verse_limit", book_num.getJsonArray("verse_limit"));
+                                                    JsonObject temp = tempBld.build();
+                                                    String versionindex_str = temp.toString(); //.replaceAll("\"", "\\\\\"");
+                                                    //add new column to METADATA table name+"IDX" VARCHAR(5000)
+                                                    //update METADATA table SET name+"IDX" = versionindex_str
+                                                    try(Statement stmt3 = instance.conn.createStatement()){
+                                                        String sql = "ALTER TABLE METADATA ADD COLUMN "+name+"IDX VARCHAR(5000)";
+                                                        boolean colAdded = stmt3.execute(sql);
+                                                        if(colAdded==false) {
+                                                            count = stmt3.getUpdateCount();
+                                                            if(count==-1){
+                                                                //System.out.println("The result is a ResultSet object or there are no more results.");
+                                                            }
+                                                            else if(count==0){
+                                                                //0 rows affected
+                                                                stmt3.close();
+
+                                                                try(Statement stmt4 = instance.conn.createStatement()){
+                                                                    String sql1 = "UPDATE METADATA SET "+name+"IDX='"+versionindex_str+"' WHERE ID=0";
+                                                                    boolean rowsUpdated = stmt4.execute(sql1);
+                                                                    if(rowsUpdated==false) {
+                                                                        count = stmt4.getUpdateCount();
+                                                                        if(count==-1){
+                                                                            //System.out.println("The result is a ResultSet object or there are no more results.");
+                                                                        }
+                                                                        else{
+                                                                            //should have affected only one row
+                                                                            if(count==1){
+                                                                                //System.out.println(sql1+" seems to have returned true");
+                                                                                stmt4.close();
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    else{
+                                                                        //returns true only when returning a resultset; should not be the case here
+                                                                    }
+
+                                                                }
+
+                                                            }
+                                                        }
+                                                        else{
+                                                            //returns true only when returning a resultset; should not be the case here
+                                                        }
+
+                                                        stmt3.close();
+                                                    }
+                                                }
+
+                                            }
+                                        }
+
+                                    }
+
+
+
+                                }
+                            }
+
+                        }
+                    }
+                    else{
+                        //is true when it returns a resultset, which shouldn't be the case here
+                        ResultSet rx = stmt.getResultSet();
+                        while(rx.next()){
+                            //System.out.println("This isn't going to happen anyways, so...");
+                        }
+                    }
+                    stmt.close();
+                }
+            }
+            rs3.close();
+        }
+        catch(SQLException ex){
+            System.out.println("Error retrieving Metadata table: "+ex.getMessage());
+            return false;
+        }
+        if(instance.conn != null){
+            try {
+                instance.conn.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return true;
+    }
         
     private void listColNamesTypes(DatabaseMetaData dbMeta, ResultSet rs) {
         //System.out.println("After Table Creation: Table "+rs.getString("TABLE_NAME")+" exists !!");
@@ -539,20 +574,25 @@ public class BibleGetDB {
                         while(itColNames.hasNext() && itDataTypes.hasNext()){
                             String colName = (String) itColNames.next();
                             Class dataType = (Class) itDataTypes.next();
-                            if(dataType==String.class){ thisRow.add(colName, rsOps.getString(colName)); }
+                            if(dataType==String.class){ 
+                                thisRow.add(colName, rsOps.getString(colName)); 
+                                System.out.println("BibleGetDB.java: "+colName+" has a string datatype, value is "+rsOps.getString(colName));
+                            }
                             if(dataType==Integer.class){ thisRow.add(colName, rsOps.getInt(colName)); }
                             if(dataType==Boolean.class){ thisRow.add(colName, rsOps.getBoolean(colName)); }
                             //System.out.println(colName + " <" + dataType + ">");
                         }
-                        thisRow.build();
-                        myRows.add(thisRow);
-                    }   
-                    rsOps.close();
-                    stmt.close();
-                    instance.disconnect();
-                    myRows.build();   
-                    return myOptionsTable.add("rows", myRows).build();
+                        JsonObject currentRow = thisRow.build();
+                        System.out.println("BibleGetDB.java: thisRow = "+currentRow.toString());
+                        myRows.add(currentRow);
+                    }
                 }
+                instance.disconnect();
+                JsonArray currentRows = myRows.build();
+                JsonObject finalOptionsJson = myOptionsTable.add("rows", currentRows).build();
+                System.out.println("BibleGetDB.java: finalOptionsJson = "+finalOptionsJson.toString());
+                return finalOptionsJson;
+                
             } catch (SQLException ex) {
                 Logger.getLogger(BibleGetDB.class.getName()).log(Level.SEVERE, null, ex);
                 return null;

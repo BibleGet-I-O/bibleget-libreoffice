@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,9 +67,12 @@ public class BibleGetHelp extends javax.swing.JFrame {
     private final int frameTop;
     
     private final BibleGetDB bibleGetDB;
-    private JsonArray bibleVersionsObj;
-    private final int booksLangs;
-    private final String booksStr;
+    //private JsonArray bibleVersionsObj;
+    private JsonArray bibleBooksLangsObj;
+    private final int bibleBooksLangsAmount;
+    //private final int booksLangs;
+    //private final String booksStr;
+    private final String langsStr;
     //private Map<String,List<String[]>> bibleBooks;
     
     private Map<String,String> booksAndAbbreviations;
@@ -76,7 +80,7 @@ public class BibleGetHelp extends javax.swing.JFrame {
     /**
      * Creates new form BibleGetHelp
      */
-    private BibleGetHelp() throws ClassNotFoundException, UnsupportedEncodingException {
+    private BibleGetHelp() throws ClassNotFoundException, UnsupportedEncodingException, SQLException {
         //jTextPane does not initialize correctly, it causes a Null Exception Pointer
         //Following line keeps this from crashing the program
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
@@ -93,15 +97,17 @@ public class BibleGetHelp extends javax.swing.JFrame {
             //System.out.println("oh good, biblegetDB is not null!");
             JsonReader jsonReader;
             langsSupported = bibleGetDB.getMetaData("LANGUAGES");
-            //System.out.println(langsSupported);
+            System.out.println("BibleGetHelp.java: langsSupported = "+langsSupported);
             jsonReader = Json.createReader(new StringReader(langsSupported));
-            bibleVersionsObj = jsonReader.readArray();
-            booksLangs = bibleVersionsObj.size();
-            for (JsonValue jsonValue : bibleVersionsObj) {
-                //System.out.println(jsonValue.toString());
-                langsLocalized.add(BibleGetI18N.localizeLanguage(jsonValue.toString()));
+            bibleBooksLangsObj = jsonReader.readArray();
+            bibleBooksLangsAmount = bibleBooksLangsObj.size(); //il numero di lingue in cui vengono riconosciuti i nomi dei libri della Bibbia?
+            for (JsonValue jsonValue : bibleBooksLangsObj) {
+                String localizedLang = BibleGetI18N.localizeLanguage(jsonValue.toString());
+                System.out.println("BibleGetHelp.java: supported language = "+jsonValue.toString()+", localized = "+localizedLang);
+                langsLocalized.add(localizedLang);
             }
-            booksStr = StringUtils.join(langsLocalized,", ");
+            langsStr = StringUtils.join(langsLocalized,", ");
+            System.out.println("BibleGetHelp.java: langsStr = "+langsStr);
             
             List<JsonArray> bibleBooksTemp = new ArrayList<>();
             for(int i=0;i<73;i++) {
@@ -116,13 +122,13 @@ public class BibleGetHelp extends javax.swing.JFrame {
             //bibleBooks = new HashMap<>();
             booksAndAbbreviations = new HashMap<>();
             String buildStr;
-            for(int q=0;q<bibleVersionsObj.size();q++) {
-                curLang = (bibleVersionsObj.getString(q) != null) ? BibleGetI18N.localizeLanguage(bibleVersionsObj.getString(q)).toUpperCase() : "";
+            for(int q=0;q<bibleBooksLangsObj.size();q++) {
+                curLang = (bibleBooksLangsObj.getString(q) != null) ? BibleGetI18N.localizeLanguage(bibleBooksLangsObj.getString(q)).toUpperCase() : "";
                 buildStr = "";
                 for(int i=0;i<73;i++) {
                     
                     String styleStr = "";
-                    if(bibleVersionsObj.getString(q).equals("TAMIL") || bibleVersionsObj.getString(q).equals("KOREAN")) {
+                    if(bibleBooksLangsObj.getString(q).equals("TAMIL") || bibleBooksLangsObj.getString(q).equals("KOREAN")) {
                         styleStr = " style=\"font-family:'Arial Unicode MS';\"";
                     }
                     
@@ -138,8 +144,8 @@ public class BibleGetHelp extends javax.swing.JFrame {
             
         }
         else{
-            booksLangs = 0;
-            booksStr = "";
+            bibleBooksLangsAmount = 0;
+            langsStr = "";
         }
         kit = new HTMLEditorKit();
         doc = kit.createDefaultDocument();
@@ -164,12 +170,12 @@ public class BibleGetHelp extends javax.swing.JFrame {
                 + "<li>"+__("Formulation of the Queries")+"</li>"
                 + "<li>"+__("Biblical Books and Abbreviations")+"</li>"
                 + "</ul>"
-                + "<p><b>"+__("AUTHOR")+":</b> "+__("John R. D'Orazio (chaplain at Roma Tre University)")+"</p>"
+                + "<p><b>"+__("AUTHOR")+":</b> John R. D'Orazio</p>"
                 + "<p><b>"+__("COLLABORATORS")+":</b> "+__("Giovanni Gregori (computing) and Simone Urbinati (MUG Roma Tre)")+"</p>"
                 + "<p><b>"+__("Version").toUpperCase()+":</b> "+String.valueOf(BibleGetIO.VERSION)+"</p>"
-                + "<p>© <b>Copyright 2014 BibleGet I/O by John R. D'Orazio</b> <span style=\"color:blue;\">john.dorazio@cappellaniauniroma3.org</span></p>"
-                + "<p><b>"+__("PROJECT WEBSITE")+": </b><span style=\"color:blue;\">http://www.bibleget.io</span> | <b>"+__("EMAIL ADDRESS FOR INFORMATION OR FEEDBACK ON THE PROJECT")+":</b> <span style=\"color:blue;\">bibleget.io@gmail.com</span></p>"
-                + "<p>Cappellania Università degli Studi Roma Tre - Piazzale San Paolo 1/d - 00120 Città del Vaticano - +39 06.69.88.08.09 - <span style=\"color:blue;\">cappellania.uniroma3@gmail.com</span></p></body></html>";
+                + "<p>© <b>Copyright 2014 BibleGet I/O by John R. D'Orazio</b> <span style=\"color:blue;\">priest@johnromanodorazio.com</span></p>"
+                + "<p><b>"+__("PROJECT WEBSITE")+": </b><span style=\"color:blue;\">https://www.bibleget.io</span> | <b>"+__("EMAIL ADDRESS FOR INFORMATION OR FEEDBACK ON THE PROJECT")+":</b> <span style=\"color:blue;\">bibleget.io@gmail.com</span></p>"
+                + "</body></html>";
         
         String strfmt1 = __("Insert quote from input window");
         String strfmt2 = __("About this plugin");
@@ -248,7 +254,7 @@ public class BibleGetHelp extends javax.swing.JFrame {
                 + " "
                 + __("The bible book can be written out in full, or in an abbreviated form.")
                 + " "
-                + MessageFormat.format(__("The BibleGet engine recognizes the names of the books of the bible in {0} different languages: {1}"),Integer.toString(booksLangs),booksStr)
+                + MessageFormat.format(__("The BibleGet engine recognizes the names of the books of the bible in {0} different languages: {1}"),Integer.toString(bibleBooksLangsAmount),langsStr)
                 + " "
                 + MessageFormat.format(__("See the list of valid books and abbreviations in the section {0}."),"<span class=\"internal-link\" id=\"to-bookabbrevs\">" + strfmt7 + "</span>")
                 + " "
@@ -312,7 +318,7 @@ public class BibleGetHelp extends javax.swing.JFrame {
         initComponents();
     }
 
-    public static BibleGetHelp getInstance() throws ClassNotFoundException, UnsupportedEncodingException
+    public static BibleGetHelp getInstance() throws ClassNotFoundException, UnsupportedEncodingException, SQLException
     {
         if(instance == null)
         {
@@ -352,7 +358,7 @@ public class BibleGetHelp extends javax.swing.JFrame {
         treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(__("Biblical Books and Abbreviations"));
         treeNode1.add(treeNode2);
 
-        for (JsonValue jsonValue : bibleVersionsObj) {
+        for (JsonValue jsonValue : bibleBooksLangsObj) {
             treeNode3 = new javax.swing.tree.DefaultMutableTreeNode(BibleGetI18N.localizeLanguage(jsonValue.toString()));
             treeNode2.add(treeNode3);
         }
@@ -563,7 +569,7 @@ public class BibleGetHelp extends javax.swing.JFrame {
             public void run() {
                 try {
                     new BibleGetHelp().setVisible(true);
-                } catch (ClassNotFoundException | UnsupportedEncodingException ex) {
+                } catch (ClassNotFoundException | UnsupportedEncodingException | SQLException ex) {
                     Logger.getLogger(BibleGetHelp.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }

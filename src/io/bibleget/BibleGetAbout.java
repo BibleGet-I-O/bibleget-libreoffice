@@ -10,6 +10,7 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,6 @@ import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonReader;
-import javax.json.JsonValue;
 import javax.swing.JFrame;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
@@ -31,12 +31,10 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class BibleGetAbout extends javax.swing.JFrame {
 
-    private final int screenWidth;
-    private final int screenHeight;
-    private final int frameWidth;
-    private final int frameHeight;
-    private final int frameLeft;
-    private final int frameTop;
+    //private final Dimension screenSize;
+    //private final Dimension frameSize;
+    //private final int frameX;
+    //private final int frameY;
     private final HTMLEditorKit kit;
     private final Document doc;
     private final String HTMLStr;
@@ -54,32 +52,31 @@ public class BibleGetAbout extends javax.swing.JFrame {
     /**
      * Creates new form BibleGetAbout
      */
-    private BibleGetAbout() throws ClassNotFoundException, UnsupportedEncodingException {
+    private BibleGetAbout() throws ClassNotFoundException, UnsupportedEncodingException, SQLException {
         //jTextPane does not initialize correctly, it causes a Null Exception Pointer
         //Following line keeps this from crashing the program
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-        
-        screenWidth = (int)java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-        screenHeight = (int)java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-        frameWidth = screenWidth - 200;
-        frameHeight = screenHeight - 100;
-        frameLeft = (screenWidth / 2) - (frameWidth / 2);
-        frameTop = (screenHeight / 2) - (frameHeight / 2);
-        
+        /*
+        screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        frameSize = new Dimension(screenSize.width - 200,screenSize.height - 100);
+        frameX = (screenSize.width / 2) - (frameSize.width / 2);
+        frameY = (screenSize.height / 2) - (frameSize.height / 2);
+        */
         kit = new HTMLEditorKit();
         doc = kit.createDefaultDocument();
         styles = kit.getStyleSheet();
-        styles.addRule("body { padding:6px; }");
+        styles.addRule("body { padding:6px;font-size:16pt; }");
+        styles.addRule("p { font-size:14pt; }");
                 
         HTMLStr = "" 
                 + "<html><body><h2>"
                 + __("BibleGet I/O plugin for LibreOffice Writer")
                 + "</h2><h4>"
                 + __("Version") + " " + String.valueOf(BibleGetIO.VERSION)
-                + "</h4><p style='text-align:justify;width:90%;'>"
+                + "</h4><p style='text-align:justify;width:95%;'>"
                 + __("This plugin was developed by <b>John R. D'Orazio</b>, a priest in the diocese of Rome, chaplain at Roma Tre University.")
                 + " "
-                + MessageFormat.format(__("It is a part of the <b>BibleGet Project</b> at {0}."),"<span style='color:Blue;'>http://www.bibleget.io</span>")
+                + MessageFormat.format(__("It is a part of the <b>BibleGet Project</b> at {0}."),"<span style='color:Blue;'>https://www.bibleget.io</span>")
                 + " "
                 + __("The author would like to thank <b>Giovanni Gregori</b> and <b>Simone Urbinati</b> for their code contributions.")
                 + " "
@@ -96,16 +93,17 @@ public class BibleGetAbout extends javax.swing.JFrame {
         initComponents();
     }
     
-    public static BibleGetAbout getInstance() throws ClassNotFoundException, UnsupportedEncodingException{
+    public static BibleGetAbout getInstance() throws ClassNotFoundException, UnsupportedEncodingException, SQLException{
         if(instance ==  null){
             instance = new BibleGetAbout();
         }
         return instance;
     }
 
-    private void prepareDynamicInformation() throws ClassNotFoundException {
+    private void prepareDynamicInformation() throws ClassNotFoundException, SQLException {
         bibleGetDB = BibleGetDB.getInstance();
         jList1 = new VersionsSelect();
+        jList1.setFont(new java.awt.Font("Tahoma",0,14));
         versionLangs = jList1.getVersionLangs();
         versionCount = jList1.getVersionCount();
         
@@ -120,10 +118,10 @@ public class BibleGetAbout extends javax.swing.JFrame {
             JsonReader jsonReader = Json.createReader(new StringReader(langsSupported));
             JsonArray bibleVersionsObj = jsonReader.readArray();
             booksLangs = bibleVersionsObj.size();
-            for (JsonValue jsonValue : bibleVersionsObj) {
+            bibleVersionsObj.stream().forEach((jsonValue) -> {
                 //System.out.println(jsonValue.toString());
                 langsLocalized.add(BibleGetI18N.localizeLanguage(jsonValue.toString()));
-            }
+            });
             booksStr = StringUtils.join(langsLocalized,", ");
         }
         else{
@@ -154,7 +152,6 @@ public class BibleGetAbout extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(__("About this plugin"));
-        setBounds(frameLeft,frameTop,frameWidth,frameHeight);
         setIconImages(setIconImages());
         setResizable(false);
 
@@ -173,27 +170,31 @@ public class BibleGetAbout extends javax.swing.JFrame {
         jTextPane1.setPreferredSize(new java.awt.Dimension(400, 300));
         jScrollPane1.setViewportView(jTextPane1);
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel1.setText(__("Current information from the BibleGet Server:"));
 
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel2.setText(MessageFormat.format(__("The BibleGet database currently supports {0} versions of the Bible in {1} different languages:"),versionCount,versionLangs));
 
         jScrollPane2.setViewportView(jList1);
+        jScrollPane2.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
         jScrollPane2.setPreferredSize(new java.awt.Dimension(400, 100));
 
+        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel4.setText(MessageFormat.format(__("The BibleGet engine currently understands the names of the books of the Bible in {0} different languages:"),booksLangs));
 
         jScrollPane3.setPreferredSize(new java.awt.Dimension(400, 48));
 
         jTextArea1.setEditable(false);
         jTextArea1.setBackground(new java.awt.Color(204, 204, 204));
+        jTextArea1.setFont(new java.awt.Font("Monospaced", 0, 14)); // NOI18N
         jTextArea1.setLineWrap(true);
         jTextArea1.setRows(3);
         jTextArea1.setText(booksStr);
         jTextArea1.setWrapStyleWord(true);
         jScrollPane3.setViewportView(jTextArea1);
 
-        jButton1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jButton1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jButton1.setText(__("RENEW SERVER DATA"));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -206,21 +207,14 @@ public class BibleGetAbout extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(10, 10, 10)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGap(612, 612, 612))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
+                        .addGap(22, 22, 22)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -228,7 +222,11 @@ public class BibleGetAbout extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(10, 10, 10)
                                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 846, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
+                                .addGap(612, 612, 612)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -237,23 +235,24 @@ public class BibleGetAbout extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(19, 19, 19)
                 .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -262,6 +261,8 @@ public class BibleGetAbout extends javax.swing.JFrame {
             try {
                 prepareDynamicInformation();
             } catch (ClassNotFoundException ex) {
+                Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
                 Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
             }
             jLabel2.setText(MessageFormat.format(__("The BibleGet database currently supports {0} versions of the Bible in {1} different languages:"),versionCount,versionLangs));
@@ -275,6 +276,8 @@ public class BibleGetAbout extends javax.swing.JFrame {
                 bbGetFrameInstance = BibleGetFrame.getInstance(BibleGetIO.getXController());
                 bbGetFrameInstance.updateDynamicInformation();
             } catch (ClassNotFoundException ex) {
+                Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
                 Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
             }
             
@@ -351,14 +354,11 @@ public class BibleGetAbout extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    new BibleGetAbout().setVisible(true);
-                } catch (ClassNotFoundException | UnsupportedEncodingException ex) {
-                    Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new BibleGetAbout().setVisible(true);
+            } catch (ClassNotFoundException | UnsupportedEncodingException | SQLException ex) {
+                Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }

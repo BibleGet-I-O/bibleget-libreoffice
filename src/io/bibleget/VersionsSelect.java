@@ -13,10 +13,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.io.StringReader;
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Consumer;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -40,7 +42,7 @@ public class VersionsSelect extends javax.swing.JList {
    
     private static BibleGetDB biblegetDB;
         
-    public VersionsSelect() throws ClassNotFoundException
+    public VersionsSelect() throws ClassNotFoundException, SQLException
     {       
         biblegetDB = BibleGetDB.getInstance();
         String bibleVersionsStr = biblegetDB.getMetaData("VERSIONS");
@@ -49,12 +51,12 @@ public class VersionsSelect extends javax.swing.JList {
         Set<String> versionsabbrev = bibleVersionsObj.keySet();
         bibleVersions = new BasicEventList<>();
         if(!versionsabbrev.isEmpty()){
-            for(String s:versionsabbrev) {
+            versionsabbrev.stream().forEach((String s) -> {
                 String versionStr = bibleVersionsObj.getString(s); //store these in an array
-                String[] array; 
+                String[] array;
                 array = versionStr.split("\\|");
                 bibleVersions.add(new BibleVersion(s,array[0],array[1],StringUtils.capitalize(new Locale(array[2]).getDisplayLanguage())));
-            }
+            });
         }
         
         versionsByLang = new SeparatorList<>(bibleVersions, new VersionComparator(),1, 1000);

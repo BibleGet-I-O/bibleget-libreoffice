@@ -8,13 +8,11 @@ package io.bibleget;
 
 import static io.bibleget.BibleGetI18N.__;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -32,7 +30,28 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 import static javax.json.JsonValue.ValueType.ARRAY;
+import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.lang3.StringUtils;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.PKIXParameters;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 /**
  *
@@ -42,6 +61,7 @@ public class HTTPCaller {
     
     private static Indexes indexes = null;
     private final List<String> errorMessages = new ArrayList<>();
+    private static int count = 0;
         
     /**
      *
@@ -56,36 +76,59 @@ public class HTTPCaller {
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(HTTPCaller.class.getName()).log(Level.SEVERE, null, ex);
         }
-        String url = "http://query.bibleget.io/index2.php?query="+myQuery+"&version="+versions+"&return=json&appid=libreoffice&pluginversion="+BibleGetIO.PLUGINVERSION;
-
-        return getResponse(url);
+        String url = "https://query.bibleget.io/index.php?query="+myQuery+"&version="+versions+"&return=json&appid=libreoffice&pluginversion="+BibleGetIO.PLUGINVERSION;
+        if(count < 1){
+            if(installCert()){
+                count++;
+                return getResponse(url);
+            }
+        }else{
+            return getResponse(url);
+        }
+        return null;
     }
     
+    /**
+     *
+     * @param query
+     * @return
+     */
     public String getMetaData(String query){
         String url;
         String response;
-        url = "http://query.bibleget.io/metadata.php?query="+query;
-        response = getResponse(url);
-        //if(response != null){
-            return response;
-        //}
-        //return null;
-    }
+        url = "https://query.bibleget.io/metadata.php?query="+query;
+        if(count < 1){
+            if(installCert()){
+                count++;
+                return getResponse(url);
+            }
+        }else{
+            return getResponse(url);
+        }
+        return null;
+     }
 
+    /**
+     *
+     * @param url
+     * @return
+     */
     public String getResponse(String url){
         URL obj;
         try {
             obj = new URL(url);
-            HttpURLConnection con;
-            con = (HttpURLConnection) obj.openConnection();
-
-            // optional default is GET
+            HttpsURLConnection con;
+            con = (HttpsURLConnection) obj.openConnection();            
+             // optional default is GET
             con.setRequestMethod("GET");
             con.setRequestProperty("Accept-Charset", "UTF-8");
 
+
             //System.out.println("Sending 'GET' request to URL : " + url);
             //System.out.println("Response Code : " + con.getResponseCode());
-            if(HttpURLConnection.HTTP_OK == con.getResponseCode()) {
+            int respCode;
+            respCode = con.getResponseCode();
+            if(HttpsURLConnection.HTTP_OK == respCode) {
                 StringBuilder response;
                 try (BufferedReader in = new BufferedReader(
                     new InputStreamReader(con.getInputStream(),"UTF-8"))) 
@@ -101,8 +144,52 @@ public class HTTPCaller {
             }                               
         } catch (IOException ex) {
             Logger.getLogger(HTTPCaller.class.getName()).log(Level.SEVERE, null, ex);
-        }        
+        }
+   
         return null;    
+    }
+    
+    //https://stackoverflow.com/a/34111150
+    private boolean installCert(){
+        try {
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            Path ksPath = Paths.get(System.getProperty("java.home"),
+                    "lib", "security", "cacerts");
+            keyStore.load(Files.newInputStream(ksPath),
+                    "changeit".toCharArray());
+            
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            try (InputStream caInput = new BufferedInputStream(
+                    // this files is shipped with the application
+                    HTTPCaller.class.getResourceAsStream("/io/bibleget/certificate/DSTRootCAX3.cer"))) {
+                Certificate crt = cf.generateCertificate(caInput);
+                System.out.println("Added Cert for " + ((X509Certificate) crt)
+                        .getSubjectDN());
+                
+                keyStore.setCertificateEntry("DSTRootCAX3", crt);
+            }
+            
+            System.out.println("Truststore now trusting: ");
+            PKIXParameters params = new PKIXParameters(keyStore);
+            /*
+            params.getTrustAnchors().stream()
+                    .map(TrustAnchor::getTrustedCert)
+                    .map(X509Certificate::getSubjectDN)
+                    .forEach(System.out::println);
+            System.out.println();
+            */
+            TrustManagerFactory tmf = TrustManagerFactory
+                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(keyStore);
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, tmf.getTrustManagers(), null);
+            SSLContext.setDefault(sslContext);
+            
+        }   catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | InvalidAlgorithmParameterException | KeyManagementException ex) {
+            Logger.getLogger(HTTPCaller.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+        return true;
     }
     
     /* 
@@ -132,7 +219,7 @@ public class HTTPCaller {
      * FUNCTION isValidBook 
      * @var book
      */
-    public int isValidBook(String book){
+    public int isValidBook(String book) throws SQLException{
         try {
             JsonArrayBuilder biblebooksBldr = Json.createArrayBuilder();
             BibleGetDB bibleGetDB;
@@ -161,8 +248,9 @@ public class HTTPCaller {
      * @return
      * @throws java.lang.ClassNotFoundException
      * @throws java.io.UnsupportedEncodingException
+     * @throws java.sql.SQLException
      */
-    public boolean integrityCheck(String myQuery,List<String> selectedVersions) throws ClassNotFoundException, UnsupportedEncodingException
+    public boolean integrityCheck(String myQuery,List<String> selectedVersions) throws ClassNotFoundException, UnsupportedEncodingException, SQLException
     {
         String versionsStr = StringUtils.join(selectedVersions.toArray(), ',');
         //System.out.println("Starting integrity check on query "+myQuery+" for versions: "+versionsStr);

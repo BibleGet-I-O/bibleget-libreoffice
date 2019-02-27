@@ -6,6 +6,7 @@
 package io.bibleget;
 
 import java.io.StringReader;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,7 @@ public class Indexes {
     private static Set<String> versionsabbrev = null;
     private static HashMap<String,VersionIDX> VersionIndexes;
     
-    private Indexes() throws ClassNotFoundException {
+    private Indexes() throws ClassNotFoundException, SQLException {
         bibleGetDB = BibleGetDB.getInstance();
         if(versionsabbrev==null) {
             String versions = bibleGetDB.getMetaData("VERSIONS");
@@ -41,7 +42,7 @@ public class Indexes {
         }
     }
     
-    public static Indexes getInstance() throws ClassNotFoundException {
+    public static Indexes getInstance() throws ClassNotFoundException, SQLException {
         if(instance==null) {
             instance = new Indexes();
         }
