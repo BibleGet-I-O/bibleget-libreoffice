@@ -159,22 +159,22 @@ public class BibleGetDB {
         try (ResultSet rs1 = dbMeta.getTables(null, null, "OPTIONS", null)) {
             if(rs1.next())
             {
-                System.out.println("Table "+rs1.getString("TABLE_NAME")+" already exists !!");
+                System.out.println("Table "+rs1.getString("TABLE_NAME")+" already exists, now adding Column names to colNames array, and corresponding Data Types to colDataTypes array !!");
                 listColNamesTypes(dbMeta,rs1);
-                StringBuilder sb = new StringBuilder();
-                int i=0;
-                for (String s : colNames) {
-                    sb.append(s);
-                    sb.append(":");
-                    sb.append(colDataTypes.get(i));
-                    sb.append(",");
-                    i = i+1;
-                }
-                System.out.println(sb.toString());
+                //StringBuilder sb = new StringBuilder();
+                //int i=0;
+                //for (String s : colNames) {
+                //    sb.append(s);
+                //    sb.append(":");
+                //    sb.append(colDataTypes.get(i));
+                //    sb.append(",");
+                //    i = i+1;
+                //}
+                //System.out.println(sb.toString());
             }
             else
             {
-                //System.out.println("Table OPTIONS does not yet exist, now attempting to create...");
+                System.out.println("Table OPTIONS does not yet exist, now attempting to create...");
                 try ( Statement stmt = instance.conn.createStatement()) {
 
                     String defaultFont = "";
@@ -370,8 +370,9 @@ public class BibleGetDB {
                                         try(Statement stmt2 = instance.conn.createStatement()) {
                                             int index = pIterator.nextIndex();
                                             JsonArray currentJson = (JsonArray) pIterator.next();
+                                            //TODO: double check that JsonArray.toString is working as intended!
                                             String biblebooks_str = currentJson.toString(); //.replaceAll("\"", "\\\\\"");
-                                            //System.out.println("BibleGetDB line 267: BIBLEBOOKS"+Integer.toString(index)+"='"+biblebooks_str+"'");
+                                            System.out.println("BibleGetDB line 267: BIBLEBOOKS"+Integer.toString(index)+"='"+biblebooks_str+"'"); 
                                             String stmt_str = "UPDATE METADATA SET BIBLEBOOKS"+Integer.toString(index)+"='"+biblebooks_str+"' WHERE ID=0";
                                             try{
                                                 //System.out.println("executing update: "+stmt_str);
@@ -388,7 +389,7 @@ public class BibleGetDB {
                                 arrayJson = json.getJsonArray("languages");
                                 if(arrayJson != null){
                                     try(Statement stmt2 = instance.conn.createStatement()) {
-
+                                        //TODO: double check that JsonArray.toString is working as intended!
                                         String languages_str = arrayJson.toString(); //.replaceAll("\"", "\\\\\"");
                                         String stmt_str = "UPDATE METADATA SET LANGUAGES='"+languages_str+"' WHERE ID=0";
                                         try{
@@ -407,6 +408,7 @@ public class BibleGetDB {
                                 JsonObject json = jsonReader.readObject();
                                 JsonObject objJson = json.getJsonObject("validversions_fullname");
                                 if(objJson != null){
+                                    //TODO: double check that JsonObject.toString is working as intended!
                                     String bibleversions_str = objJson.toString(); //.replaceAll("\"", "\\\\\"");
                                     try(Statement stmt2 = instance.conn.createStatement()){
                                         String stmt_str = "UPDATE METADATA SET VERSIONS='"+bibleversions_str+"' WHERE ID=0";
@@ -439,6 +441,7 @@ public class BibleGetDB {
                                                     tempBld.add("chapter_limit", book_num.getJsonArray("chapter_limit"));
                                                     tempBld.add("verse_limit", book_num.getJsonArray("verse_limit"));
                                                     JsonObject temp = tempBld.build();
+                                                    //TODO: double check that JsonObject.toString is working as intended!
                                                     String versionindex_str = temp.toString(); //.replaceAll("\"", "\\\\\"");
                                                     //add new column to METADATA table name+"IDX" VARCHAR(5000)
                                                     //update METADATA table SET name+"IDX" = versionindex_str
@@ -576,21 +579,21 @@ public class BibleGetDB {
                             Class dataType = (Class) itDataTypes.next();
                             if(dataType==String.class){ 
                                 thisRow.add(colName, rsOps.getString(colName)); 
-                                System.out.println("BibleGetDB.java: "+colName+" has a string datatype, value is "+rsOps.getString(colName));
+                                //System.out.println("BibleGetDB.java: "+colName+" has a string datatype, value is "+rsOps.getString(colName));
                             }
                             if(dataType==Integer.class){ thisRow.add(colName, rsOps.getInt(colName)); }
                             if(dataType==Boolean.class){ thisRow.add(colName, rsOps.getBoolean(colName)); }
                             //System.out.println(colName + " <" + dataType + ">");
                         }
                         JsonObject currentRow = thisRow.build();
-                        System.out.println("BibleGetDB.java: thisRow = "+currentRow.toString());
+                        //System.out.println("BibleGetDB.java: thisRow = "+currentRow.toString());
                         myRows.add(currentRow);
                     }
                 }
                 instance.disconnect();
                 JsonArray currentRows = myRows.build();
                 JsonObject finalOptionsJson = myOptionsTable.add("rows", currentRows).build();
-                System.out.println("BibleGetDB.java: finalOptionsJson = "+finalOptionsJson.toString());
+                //System.out.println("BibleGetDB.java: finalOptionsJson = "+finalOptionsJson.toString());
                 return finalOptionsJson;
                 
             } catch (SQLException ex) {
@@ -639,12 +642,12 @@ public class BibleGetDB {
         dataOption = StringUtils.upperCase(dataOption);
         String metaDataStr = "";
         if(dataOption.startsWith("BIBLEBOOKS") || dataOption.equals("LANGUAGES") || dataOption.equals("VERSIONS") || dataOption.endsWith("IDX")){
-            System.out.println("getMetaData received a valid request for "+dataOption);
+            //System.out.println("getMetaData received a valid request for "+dataOption);
             if(instance.connect()){
                 if(instance.conn == null){
-                    System.out.println("What is going on here? Why is connection null?");
+                    //System.out.println("What is going on here? Why is connection null?");
                 }else{
-                    System.out.println("getMetaData has connected to the database...");
+                    //System.out.println("getMetaData has connected to the database...");
                 }
                 String sqlexec = "SELECT "+dataOption+" FROM METADATA WHERE ID=0";
                 try(Statement stmt = instance.conn.createStatement()){
@@ -843,6 +846,7 @@ public class BibleGetDB {
                                         try(Statement stmt1 = instance.conn.createStatement()) {
                                             int index = pIterator.nextIndex();
                                             JsonArray currentJson = (JsonArray) pIterator.next();
+                                            //TODO: double check that JsonArray.toString is working as intended
                                             String biblebooks_str = currentJson.toString(); //.replaceAll("\"", "\\\\\"");
                                             //System.out.println("BibleGetDB line 267: BIBLEBOOKS"+Integer.toString(index)+"='"+biblebooks_str+"'");
                                             String stmt_str = "UPDATE METADATA SET BIBLEBOOKS"+Integer.toString(index)+"='"+biblebooks_str+"' WHERE ID=0";
@@ -857,6 +861,7 @@ public class BibleGetDB {
                                 arrayJson = json.getJsonArray("languages");
                                 if(arrayJson != null){
                                     try(Statement stmt2 = instance.conn.createStatement()) {                                        
+                                        //TODO: double check that JsonArray.toString is working as intended
                                         String languages_str = arrayJson.toString(); //.replaceAll("\"", "\\\\\"");
                                         String stmt_str = "UPDATE METADATA SET LANGUAGES='"+languages_str+"' WHERE ID=0";
                                         int update = stmt2.executeUpdate(stmt_str);
@@ -871,6 +876,7 @@ public class BibleGetDB {
                                 JsonObject json = jsonReader.readObject();
                                 JsonObject objJson = json.getJsonObject("validversions_fullname");
                                 if(objJson != null){
+                                    //TODO: double check that JsonObject.toString is working as intended
                                     String bibleversions_str = objJson.toString(); //.replaceAll("\"", "\\\\\"");
                                     try(Statement stmt3 = instance.conn.createStatement()){
                                         String stmt_str = "UPDATE METADATA SET VERSIONS='"+bibleversions_str+"' WHERE ID=0";
@@ -898,6 +904,7 @@ public class BibleGetDB {
                                                     tempBld.add("chapter_limit", book_num.getJsonArray("chapter_limit"));
                                                     tempBld.add("verse_limit", book_num.getJsonArray("verse_limit"));
                                                     JsonObject temp = tempBld.build();
+                                                    //TODO: double check that JsonObject.toString is working as intended
                                                     String versionindex_str = temp.toString(); //.replaceAll("\"", "\\\\\"");
                                                     //add new column to METADATA table name+"IDX" VARCHAR(5000)
                                                     //update METADATA table SET name+"IDX" = versionindex_str

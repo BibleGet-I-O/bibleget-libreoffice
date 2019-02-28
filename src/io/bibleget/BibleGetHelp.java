@@ -18,6 +18,8 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +29,7 @@ import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonReader;
+import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -73,7 +76,8 @@ public class BibleGetHelp extends javax.swing.JFrame {
     //private final int booksLangs;
     //private final String booksStr;
     private final String langsStr;
-    //private Map<String,List<String[]>> bibleBooks;
+    private String langsSupported;
+    private List<String> langsLocalized;
     
     private Map<String,String> booksAndAbbreviations;
     
@@ -81,6 +85,7 @@ public class BibleGetHelp extends javax.swing.JFrame {
      * Creates new form BibleGetHelp
      */
     private BibleGetHelp() throws ClassNotFoundException, UnsupportedEncodingException, SQLException {
+        this.langsLocalized = new ArrayList<>();
         //jTextPane does not initialize correctly, it causes a Null Exception Pointer
         //Following line keeps this from crashing the program
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
@@ -88,8 +93,6 @@ public class BibleGetHelp extends javax.swing.JFrame {
         String packagePath = BibleGetIO.getPackagePath();
         //String locale = BibleGetIO.getLocale();
                 
-        String langsSupported;
-        List<String> langsLocalized = new ArrayList<>();
         String bbBooks;
         
         bibleGetDB = BibleGetDB.getInstance();
@@ -102,10 +105,12 @@ public class BibleGetHelp extends javax.swing.JFrame {
             bibleBooksLangsObj = jsonReader.readArray();
             bibleBooksLangsAmount = bibleBooksLangsObj.size(); //il numero di lingue in cui vengono riconosciuti i nomi dei libri della Bibbia?
             for (JsonValue jsonValue : bibleBooksLangsObj) {
-                String localizedLang = BibleGetI18N.localizeLanguage(jsonValue.toString());
-                System.out.println("BibleGetHelp.java: supported language = "+jsonValue.toString()+", localized = "+localizedLang);
+                JsonString langToLocalize = (JsonString) jsonValue;
+                String localizedLang = BibleGetI18N.localizeLanguage(langToLocalize.getString());
+                System.out.println("BibleGetHelp.java: supported language = "+langToLocalize.getString()+", localized = "+localizedLang);
                 langsLocalized.add(localizedLang);
             }
+            Collections.sort(langsLocalized);
             langsStr = StringUtils.join(langsLocalized,", ");
             System.out.println("BibleGetHelp.java: langsStr = "+langsStr);
             
@@ -118,7 +123,7 @@ public class BibleGetHelp extends javax.swing.JFrame {
             }
             
             String curLang;
-            List<String[]> booksForCurLang;
+            //List<String[]> booksForCurLang;
             //bibleBooks = new HashMap<>();
             booksAndAbbreviations = new HashMap<>();
             String buildStr;
@@ -358,8 +363,8 @@ public class BibleGetHelp extends javax.swing.JFrame {
         treeNode2 = new javax.swing.tree.DefaultMutableTreeNode(__("Biblical Books and Abbreviations"));
         treeNode1.add(treeNode2);
 
-        for (JsonValue jsonValue : bibleBooksLangsObj) {
-            treeNode3 = new javax.swing.tree.DefaultMutableTreeNode(BibleGetI18N.localizeLanguage(jsonValue.toString()));
+        for (String lclzdLang : langsLocalized) {
+            treeNode3 = new javax.swing.tree.DefaultMutableTreeNode(lclzdLang);
             treeNode2.add(treeNode3);
         }
         jTree1.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));

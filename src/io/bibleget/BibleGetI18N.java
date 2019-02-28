@@ -332,6 +332,7 @@ public class BibleGetI18N {
             return WordUtils.capitalizeFully(localizedLang);
         }
         else{
+            System.out.println("BibleGetI18N.java: could not find "+language+" in LANGUAGECODES hashmap, no localization will be done. Returning same value" );
             return WordUtils.capitalizeFully(language);
         }
     }

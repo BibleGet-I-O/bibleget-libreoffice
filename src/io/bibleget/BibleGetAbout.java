@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonReader;
+import javax.json.JsonString;
 import javax.swing.JFrame;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
@@ -120,7 +121,8 @@ public class BibleGetAbout extends javax.swing.JFrame {
             booksLangs = bibleVersionsObj.size();
             bibleVersionsObj.stream().forEach((jsonValue) -> {
                 //System.out.println(jsonValue.toString());
-                langsLocalized.add(BibleGetI18N.localizeLanguage(jsonValue.toString()));
+                JsonString langToLocalize = (JsonString) jsonValue;
+                langsLocalized.add(BibleGetI18N.localizeLanguage(langToLocalize.getString()));
             });
             booksStr = StringUtils.join(langsLocalized,", ");
         }

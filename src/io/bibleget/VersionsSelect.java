@@ -18,7 +18,6 @@ import java.util.Comparator;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Set;
-import java.util.function.Consumer;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
