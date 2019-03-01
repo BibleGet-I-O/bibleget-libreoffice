@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -124,6 +125,7 @@ public class BibleGetAbout extends javax.swing.JFrame {
                 JsonString langToLocalize = (JsonString) jsonValue;
                 langsLocalized.add(BibleGetI18N.localizeLanguage(langToLocalize.getString()));
             });
+            Collections.sort(langsLocalized);
             booksStr = StringUtils.join(langsLocalized,", ");
         }
         else{
@@ -262,9 +264,7 @@ public class BibleGetAbout extends javax.swing.JFrame {
         if(bibleGetDB.renewMetaData()){
             try {
                 prepareDynamicInformation();
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (SQLException ex) {
+            } catch (ClassNotFoundException | SQLException ex) {
                 Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
             }
             jLabel2.setText(MessageFormat.format(__("The BibleGet database currently supports {0} versions of the Bible in {1} different languages:"),versionCount,versionLangs));
@@ -277,9 +277,7 @@ public class BibleGetAbout extends javax.swing.JFrame {
                 BibleGetFrame bbGetFrameInstance;
                 bbGetFrameInstance = BibleGetFrame.getInstance(BibleGetIO.getXController());
                 bbGetFrameInstance.updateDynamicInformation();
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (SQLException ex) {
+            } catch (ClassNotFoundException | SQLException ex) {
                 Logger.getLogger(BibleGetAbout.class.getName()).log(Level.SEVERE, null, ex);
             }
             

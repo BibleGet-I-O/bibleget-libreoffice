@@ -18,7 +18,6 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +29,6 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonReader;
 import javax.json.JsonString;
-import javax.json.JsonValue;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -100,16 +98,14 @@ public class BibleGetHelp extends javax.swing.JFrame {
             //System.out.println("oh good, biblegetDB is not null!");
             JsonReader jsonReader;
             langsSupported = bibleGetDB.getMetaData("LANGUAGES");
-            System.out.println("BibleGetHelp.java: langsSupported = "+langsSupported);
+            //System.out.println("BibleGetHelp.java: langsSupported = "+langsSupported);
             jsonReader = Json.createReader(new StringReader(langsSupported));
             bibleBooksLangsObj = jsonReader.readArray();
             bibleBooksLangsAmount = bibleBooksLangsObj.size(); //il numero di lingue in cui vengono riconosciuti i nomi dei libri della Bibbia?
-            for (JsonValue jsonValue : bibleBooksLangsObj) {
-                JsonString langToLocalize = (JsonString) jsonValue;
-                String localizedLang = BibleGetI18N.localizeLanguage(langToLocalize.getString());
-                System.out.println("BibleGetHelp.java: supported language = "+langToLocalize.getString()+", localized = "+localizedLang);
+            bibleBooksLangsObj.stream().map((jsonValue) -> (JsonString) jsonValue).map((langToLocalize) -> BibleGetI18N.localizeLanguage(langToLocalize.getString())).forEach((localizedLang) -> {
+                //System.out.println("BibleGetHelp.java: supported language = "+langToLocalize.getString()+", localized = "+localizedLang);
                 langsLocalized.add(localizedLang);
-            }
+            });
             Collections.sort(langsLocalized);
             langsStr = StringUtils.join(langsLocalized,", ");
             System.out.println("BibleGetHelp.java: langsStr = "+langsStr);
