@@ -76,7 +76,7 @@ public class BibleGetAbout extends javax.swing.JFrame {
                 + "</h2><h4>"
                 + __("Version") + " " + String.valueOf(BibleGetIO.VERSION)
                 + "</h4><p style='text-align:justify;width:95%;'>"
-                + __("This plugin was developed by <b>John R. D'Orazio</b>, a priest in the diocese of Rome, chaplain at Roma Tre University.")
+                + __("This plugin was developed by <b>John R. D'Orazio</b>, a priest in the diocese of Rome.")
                 + " "
                 + MessageFormat.format(__("It is a part of the <b>BibleGet Project</b> at {0}."),"<span style='color:Blue;'>https://www.bibleget.io</span>")
                 + " "
