@@ -92,7 +92,7 @@ public class OptionsFrame extends javax.swing.JFrame {
     private JTextPane myjtextpane;
     //private JEditorPane myjeditorpane;
     
-    private final FontFamilyListCellRenderer FFLCRenderer = new FontFamilyListCellRenderer();
+    private final FontFamilyListCellRenderer FFLCRenderer;
     private final DefaultComboBoxModel fontFamilies;
     //protected int mouseOver;
     /*
@@ -113,25 +113,26 @@ public class OptionsFrame extends javax.swing.JFrame {
      * @param pkgPath
      */
     private OptionsFrame() throws ClassNotFoundException, UnsupportedEncodingException, SQLException {
+        this.FFLCRenderer = new FontFamilyListCellRenderer();
                 
         //jTextPane does not initialize correctly, it causes a Null Exception Pointer
         //Following line keeps this from crashing the program
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         
         // Get preferences from database       
-        System.out.println("getting instance of BibleGetDB");
+        //System.out.println("getting instance of BibleGetDB");
         biblegetDB = BibleGetDB.getInstance();
-        System.out.println("getting JsonObject of biblegetDB options");
+        //System.out.println("getting JsonObject of biblegetDB options");
         JsonObject myOptions = biblegetDB.getOptions();
-        System.out.println(myOptions.toString());
-        System.out.println("getting JsonValue of options rows");
+        //System.out.println(myOptions.toString());
+        //System.out.println("getting JsonValue of options rows");
         JsonValue myResults = myOptions.get("rows");
-        System.out.println(myResults.toString());
-        System.out.println("navigating values in json tree and setting global variables");
+        //System.out.println(myResults.toString());
+        //System.out.println("navigating values in json tree and setting global variables");
         navigateTree(myResults, null);
         this.fontFamilies = BibleGetIO.getFontFamilies();
         
-        System.out.println("(OptionsFrame: 127) textColorBookChapter ="+textColorBookChapter);
+        //System.out.println("(OptionsFrame: 127) textColorBookChapter ="+textColorBookChapter);
         
         this.kit = new HTMLEditorKit();
         this.doc = kit.createDefaultDocument();
@@ -1884,14 +1885,11 @@ public class OptionsFrame extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    new OptionsFrame().setVisible(true);
-                } catch (ClassNotFoundException | UnsupportedEncodingException | SQLException ex) {
-                    Logger.getLogger(OptionsFrame.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new OptionsFrame().setVisible(true);
+            } catch (ClassNotFoundException | UnsupportedEncodingException | SQLException ex) {
+                Logger.getLogger(OptionsFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }

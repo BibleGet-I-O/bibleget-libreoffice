@@ -28,10 +28,7 @@ package io.bibleget;
 
 import com.sun.star.lang.XSingleComponentFactory;
 import com.sun.star.registry.XRegistryKey;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
@@ -61,19 +58,7 @@ public class CentralRegistrationClass {
                        return (XSingleComponentFactory)result;
                     }
                 }
-                catch (ClassNotFoundException ex) {
-                    ex.printStackTrace();
-                } catch (ClassCastException ex) {
-                    ex.printStackTrace();
-                } catch (SecurityException ex) {
-                    ex.printStackTrace();
-                } catch (NoSuchMethodException ex) {
-                    ex.printStackTrace();
-                } catch (IllegalArgumentException ex) {
-                    ex.printStackTrace();
-                } catch (InvocationTargetException ex) {
-                    ex.printStackTrace();
-                } catch (IllegalAccessException ex) {
+                catch (ClassNotFoundException | ClassCastException | SecurityException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException | IllegalAccessException ex) {
                     ex.printStackTrace();
                 }
             }
@@ -94,19 +79,7 @@ public class CentralRegistrationClass {
                     Object result = writeRegInfo.invoke(regClass, xRegistryKey);
                     bResult &= ((Boolean)result).booleanValue();
                 }
-                catch (ClassNotFoundException ex) {
-                    ex.printStackTrace();
-                } catch (ClassCastException ex) {
-                    ex.printStackTrace();
-                } catch (SecurityException ex) {
-                    ex.printStackTrace();
-                } catch (NoSuchMethodException ex) {
-                    ex.printStackTrace();
-                } catch (IllegalArgumentException ex) {
-                    ex.printStackTrace();
-                } catch (InvocationTargetException ex) {
-                    ex.printStackTrace();
-                } catch (IllegalAccessException ex) {
+                catch (ClassNotFoundException | ClassCastException | SecurityException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException | IllegalAccessException ex) {
                     ex.printStackTrace();
                 }
             }
