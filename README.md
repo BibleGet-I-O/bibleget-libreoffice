@@ -1,7 +1,6 @@
 # bibleget-libreoffice
 BibleGet I/O Project plugin for Libre Office
-
-![SourceForge](https://img.shields.io/sourceforge/dt/aoo-extensions/18086?style=flat-square)
+![Downloads](https://img.shields.io/github/downloads/BibleGet-I-O/bibleget-libreoffice/total?style=flat-square)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/BibleGet-I-O/bibleget-libreoffice?style=flat-square)
 ![GitHub Release Date](https://img.shields.io/github/release-date/BibleGet-I-O/bibleget-libreoffice?style=flat-square)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/BibleGet-I-O/bibleget-libreoffice?style=flat-square)
