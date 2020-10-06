@@ -25,7 +25,7 @@ Geben biblische Zitate in Ihrem Dokument mit dem biblischen Standard-Notation. D
 ## Installation
 The latest release can be downloaded from the Libre Office Extensions website at:
 * https://extensions.libreoffice.org/en/extensions/show/bibleget-i-o
-* a Java Runtime Environment is required for this plugin to function correctly. A minimum of JRE 1.8 (32bit version) is required and can be obtained either from https://www.oracle.com/java/technologies/javase-jre8-downloads.html or from https://developers.redhat.com/products/openjdk/download (JDK includes JRE). Please note that a 64bit JRE will not work. You can install both a 64bit and a 32bit JRE, but OpenOffice can only handle a 32bit JRE.
+* a Java Runtime Environment is required for this plugin to function correctly. It requires at least version 1.8, and must be 64-bit version when using v2.8 of the plugin with LibreOffice 6, so please make sure you have a JRE installed and you have LibreOffice configured to use at least JRE 1.8 (x64) before you attempt to install this plugin, otherwise it will probably throw an error. You can download and install the JRE (or JDK which includes JRE) from https://www.oracle.com/java/technologies/javase-jre8-downloads.html or from https://developers.redhat.com/products/openjdk/download. Then you must go to **LibreOffice -> Tools -> Options -> LibreOffice -> Advanced** and make sure "**Use a Java Runtime Environment**" is checked, and that a version of **at least 1.8** is selected in the list (it may take a minute for the list to compile the first time you open it, just be patient, and then make sure you choose a 64-bit version)
 
 ## Changelog
 
